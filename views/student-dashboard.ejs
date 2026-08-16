@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synthetic Nature — Resident HQ</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://db.onlinewebfonts.com/c/2bf40ab72ea4897a3fd9b6e48b233a19?family=Garamond" rel="stylesheet" type="text/css"/>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      background-color: #010101;
+      color: #ffffff;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-garamond {
+      font-family: 'Garamond', 'Times New Roman', serif;
+    }
+
+    .nature-glass {
+      background: rgba(10, 10, 10, 0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .nature-input {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      transition: all 0.3s ease;
+    }
+    
+    .nature-input:focus {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.4);
+      outline: none;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+
+    .nature-table-row {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      transition: all 0.25s ease;
+    }
+
+    .nature-table-row:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .liquid-glass {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: none;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
+    }
+
+    .liquid-glass::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.4px;
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%,
+        rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
+        rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .liquid-glass:hover {
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.25);
+    }
+
+    .liquid-glass:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body class="min-h-full pb-16 relative overflow-x-hidden">
+
+  <!-- Background Video -->
+  <video autoPlay muted loop playsInline class="fixed inset-0 w-full h-full object-cover object-center -z-20 pointer-events-none">
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260619_191346_9d19d66e-86a4-47f7-8dc6-712c1788c3b2.mp4" type="video/mp4">
+  </video>
+
+  <div class="fixed inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/80 pointer-events-none -z-10"></div>
+
+  <!-- Header Navigation -->
+  <header class="sticky top-0 z-50 nature-glass border-b border-white/10 px-6 py-5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div>
+          <span class="text-[10px] uppercase tracking-[0.3em] text-white/50 block">Synthetic Nature</span>
+          <h1 class="font-garamond text-2xl text-white tracking-tight">
+            <%= (typeof user !== 'undefined' && user.name) ? user.name : 'Student Portal' %>
+          </h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-6">
+        <% if (typeof user !== 'undefined' && user.roomNumber) { %>
+          <span class="text-xs uppercase tracking-[0.2em] font-light text-white/70 hidden sm:inline">
+            Room <span class="text-white font-normal"><%= user.roomNumber %></span>
+          </span>
+        <% } %>
+        <a href="/logout" class="liquid-glass px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.2em] font-light text-white/90 flex items-center gap-2">
+          <i data-lucide="log-out" class="w-3.5 h-3.5 text-white/70"></i>
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 pt-10 space-y-10">
+    
+    <div class="text-center py-4">
+      <h2 class="font-garamond text-4xl sm:text-6xl text-white tracking-tight">
+        RESIDENT PORTAL
+      </h2>
+      <p class="text-xs uppercase tracking-[0.25em] text-white/60 font-light mt-2">
+        Manage tickets & visitor passes
+      </p>
+    </div>
+
+    <!-- Announcements -->
+    <section class="nature-glass rounded-3xl p-6 md:p-8">
+      <div class="text-xs uppercase tracking-[0.25em] font-light text-white/60 mb-4 flex items-center gap-2">
+        <i data-lucide="bell" class="w-3.5 h-3.5 text-white/80"></i>
+        Announcements
+      </div>
+      
+      <div class="space-y-3">
+        <% if (typeof announcements !== 'undefined' && announcements && announcements.length > 0) { %>
+          <% announcements.forEach(notice => { %>
+            <div class="p-4 rounded-2xl nature-table-row">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                <h3 class="font-garamond text-lg text-white"><%= notice.title || 'Notice' %></h3>
+                <span class="text-[10px] uppercase tracking-[0.15em] text-white/50">
+                  <%= notice.postedBy ? notice.postedBy.name : 'Warden' %> &bull; <%= notice.createdAt ? new Date(notice.createdAt).toLocaleDateString() : 'Recent' %>
+                </span>
+              </div>
+              <p class="text-xs text-white/70 font-light leading-relaxed"><%= notice.content || notice.message %></p>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p class="text-xs text-white/40 italic font-light">No announcements recorded.</p>
+        <% } %>
+      </div>
+    </section>
+
+    <!-- Maintenance & Visitor Forms -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <div class="nature-glass rounded-3xl p-6 md:p-8">
+        <h3 class="font-garamond text-2xl text-white mb-6 flex items-center gap-2.5">
+          <i data-lucide="wrench" class="w-5 h-5 text-white/70"></i>
+          Log Maintenance Ticket
+        </h3>
+        <form action="/student/issues" method="POST" class="space-y-4">
+          <div>
+            <label class="block text-[11px] uppercase tracking-[0.2em] font-light text-white/70 mb-2">Issue Category</label>
+            <select name="category" required class="nature-input w-full rounded-2xl px-4 py-3 text-xs font-light">
+              <option value="Plumbing" class="bg-black text-white">Plumbing</option>
+              <option value="Electrical" class="bg-black text-white">Electrical</option>
+              <option value="Carpentry" class="bg-black text-white">Carpentry</option>
+              <option value="Cleaning" class="bg-black text-white">Cleaning</option>
+              <option value="Other" class="bg-black text-white">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] uppercase tracking-[0.2em] font-light text-white/70 mb-2">Description</label>
+            <textarea name="description" rows="3" placeholder="Describe the issue..." required class="nature-input w-full rounded-2xl p-4 text-xs font-light placeholder:text-white/30 resize-none"></textarea>
+          </div>
+          <button type="submit" class="liquid-glass w-full py-3.5 rounded-full text-white uppercase tracking-[0.2em] text-xs font-light flex items-center justify-center gap-2">
+            <i data-lucide="send" class="w-3.5 h-3.5 text-white/70"></i>
+            <span>Submit Request</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="nature-glass rounded-3xl p-6 md:p-8">
+        <h3 class="font-garamond text-2xl text-white mb-6 flex items-center gap-2.5">
+          <i data-lucide="ticket" class="w-5 h-5 text-white/70"></i>
+          Pre-Register Visitor
+        </h3>
+        <form action="/student/visitors" method="POST" class="space-y-4">
+          <div>
+            <label class="block text-[11px] uppercase tracking-[0.2em] font-light text-white/70 mb-2">Visitor Name</label>
+            <input type="text" name="visitorName" placeholder="Full Name" required class="nature-input w-full rounded-2xl px-4 py-3 text-xs font-light placeholder:text-white/30" />
+          </div>
+          <div>
+            <label class="block text-[11px] uppercase tracking-[0.2em] font-light text-white/70 mb-2">Visitor Phone</label>
+            <input type="text" name="visitorPhone" placeholder="Phone Number" required class="nature-input w-full rounded-2xl px-4 py-3 text-xs font-light placeholder:text-white/30" />
+          </div>
+          <button type="submit" class="liquid-glass w-full py-3.5 rounded-full text-white uppercase tracking-[0.2em] text-xs font-light flex items-center justify-center gap-2">
+            <i data-lucide="key" class="w-3.5 h-3.5 text-white/70"></i>
+            <span>Generate Gate Pass</span>
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Active Tables -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <div class="nature-glass rounded-3xl p-6 md:p-8">
+        <h3 class="font-garamond text-xl text-white mb-5 flex items-center gap-2">
+          <i data-lucide="clock" class="w-4 h-4 text-white/70"></i>
+          Active Maintenance Tickets
+        </h3>
+        <div class="space-y-2.5">
+          <% if (typeof issues !== 'undefined' && issues && issues.length > 0) { %>
+            <% issues.forEach(issue => { %>
+              <div class="flex items-center justify-between p-4 rounded-2xl nature-table-row text-xs">
+                <div>
+                  <span class="font-medium text-white block"><%= issue.category %></span>
+                  <span class="text-white/60 font-light text-[11px]"><%= issue.description %></span>
+                </div>
+                <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] border border-white/20 bg-white/5 text-white/80">
+                  <%= issue.status %>
+                </span>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p class="text-xs text-white/40 italic font-light">No tickets logged.</p>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="nature-glass rounded-3xl p-6 md:p-8">
+        <h3 class="font-garamond text-xl text-white mb-5 flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-white/70"></i>
+          Gate Passes Issued
+        </h3>
+        <div class="space-y-2.5">
+          <% if (typeof visitors !== 'undefined' && visitors && visitors.length > 0) { %>
+            <% visitors.forEach(pass => { %>
+              <div class="flex items-center justify-between p-4 rounded-2xl nature-table-row text-xs">
+                <div>
+                  <span class="font-medium text-white block"><%= pass.visitorName || pass.name %></span>
+                  <code class="text-[10px] font-mono tracking-widest text-white/50"><%= pass.passcode || pass.code %></code>
+                </div>
+                <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] border border-white/20 bg-white/5 text-white/80">
+                  <%= pass.status %>
+                </span>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p class="text-xs text-white/40 italic font-light">No active passes found.</p>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>lucide.createIcons();</script>
+</body>
+</html>

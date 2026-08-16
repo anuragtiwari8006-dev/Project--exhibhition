@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Security Checkpoint Portal</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; }
+    .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .alert-error { background: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 15px; }
+    .alert-success { background: #d4edda; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 15px; }
+    input[type="text"] { padding: 10px; width: 250px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+    th { background: #343a40; color: white; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>🛡️ Gate Entry Verification</h2>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert-error">⚠️ <%= error %></div>
+    <% } %>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="alert-success">✅ <%= success %></div>
+    <% } %>
+
+    <form action="/security/verify-passcode" method="POST">
+      <label for="passcode"><strong>Enter Visitor Passcode:</strong></label><br><br>
+      <input type="text" id="passcode" name="passcode" placeholder="6-digit code (e.g. 415237)" required maxlength="6" autocomplete="off" />
+      <button type="submit">Verify & Check-In</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>📋 Recent Visitor Check-Ins</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Visitor Name</th>
+          <th>Student / Resident</th>
+          <th>Room No</th>
+          <th>Check-In Time</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (typeof recentLogs !== 'undefined' && recentLogs.length > 0) { %>
+          <% recentLogs.forEach(log => { %>
+            <tr>
+              <td><%= log.visitorName %></td>
+              <td><%= log.resident ? log.resident.name : 'N/A' %></td>
+              <td><strong><%= log.resident ? log.resident.roomNumber : 'N/A' %></strong></td>
+              <td><%= new Date(log.checkInTime || log.updatedAt).toLocaleString() %></td>
+              <td><span style="color: green; font-weight: bold;"><%= log.status %></span></td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="5">No visitor entries logged yet today.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>

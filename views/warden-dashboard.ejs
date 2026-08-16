@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warden Administration Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; }
+    .header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background-color: #007bff; color: white; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+    .badge.pending { background: #fff3cd; color: #856404; }
+    .btn-approve { background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .btn-submit { background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    .btn-logout { background: #dc3545; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+    input[type="text"], textarea { width: 100%; padding: 8px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <h2>👮 Warden Portal</h2>
+      <p>Welcome, <strong><%= user.name %></strong></p>
+    </div>
+    <a href="/logout" class="btn-logout">Logout</a>
+  </div>
+
+  <!-- Post New Announcement Form -->
+  <div class="card">
+    <h3>📢 Post Hostel Announcement</h3>
+    <form action="/warden/announcements" method="POST">
+      <label for="title">Title:</label>
+      <input type="text" id="title" name="title" placeholder="e.g. Water Maintenance Notice" required />
+      
+      <label for="content">Announcement Content:</label>
+      <textarea id="content" name="content" rows="3" placeholder="Write notice details..." required></textarea>
+      
+      <button type="submit" class="btn-submit">Publish Announcement</button>
+    </form>
+  </div>
+
+  <!-- Active Announcements List -->
+  <div class="card">
+    <h3>📋 Active Hostel Announcements</h3>
+    <% if (typeof announcements !== 'undefined' && announcements.length > 0) { %>
+      <ul>
+        <% announcements.forEach(item => { %>
+          <li style="margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 10px;">
+            <strong><%= item.title %></strong> 
+            <small style="color: #666;">(Posted by: <%= item.postedBy %> on <%= new Date(item.createdAt).toLocaleDateString() %>)</small>
+            <p style="margin: 5px 0 0 0;"><%= item.content %></p>
+          </li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <p>No active announcements posted yet.</p>
+    <% } %>
+  </div>
+
+  <!-- Pending Visitor Approval Table -->
+  <div class="card">
+    <h3>🎟️ Pending Visitor Pass Requests</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Room No</th>
+          <th>Student Name</th>
+          <th>Visitor Name</th>
+          <th>Visitor Phone</th>
+          <th>Passcode</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (typeof pendingVisitors !== 'undefined' && pendingVisitors.length > 0) { %>
+          <% pendingVisitors.forEach(visitor => { %>
+            <tr>
+              <td><strong><%= visitor.resident ? visitor.resident.roomNumber : 'N/A' %></strong></td>
+              <td><%= visitor.resident ? visitor.resident.name : 'N/A' %></td>
+              <td><%= visitor.visitorName %></td>
+              <td><%= visitor.visitorPhone %></td>
+              <td><code><%= visitor.passcode %></code></td>
+              <td><span class="badge pending"><%= visitor.status %></span></td>
+              <td>
+                <form action="/warden/visitors/approve/<%= visitor._id %>" method="POST" style="margin: 0;">
+                  <button type="submit" class="btn-approve">Approve Pass</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="7">No pending visitor pass requests.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Student Maintenance Complaints Table -->
+  <div class="card">
+    <h3>🔧 Student Maintenance Issues</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Room No</th>
+          <th>Student Name</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Update Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (typeof issues !== 'undefined' && issues.length > 0) { %>
+          <% issues.forEach(issue => { %>
+            <tr>
+              <td><strong><%= issue.roomNumber %></strong></td>
+              <td><%= issue.resident ? issue.resident.name : 'N/A' %></td>
+              <td><%= issue.category %></td>
+              <td><%= issue.description %></td>
+              <td><%= issue.status %></td>
+              <td>
+                <form action="/warden/issues/update/<%= issue._id %>" method="POST" style="display:flex; gap: 5px;">
+                  <select name="status">
+                    <option value="Pending" <%= issue.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                    <option value="In Progress" <%= issue.status === 'In Progress' ? 'selected' : '' %>>In Progress</option>
+                    <option value="Resolved" <%= issue.status === 'Resolved' ? 'selected' : '' %>>Resolved</option>
+                  </select>
+                  <button type="submit">Update</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="6">No maintenance issues reported.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>
