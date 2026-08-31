@@ -3,6 +3,7 @@ const router = express.Router();
 const MaintenanceIssue = require('../models/MaintenanceIssue');
 const Visitor = require('../models/Visitor');
 const Announcement = require('../models/Announcement');
+const FacultyProfile = require('../models/FacultyProfile');
 
 // Middlewares
 const { authenticateUser, requireRole } = require('../middleware/auth');
@@ -84,5 +85,23 @@ router.post(
     }
   }
 );
+
+
+
+// Route to render dedicated Faculty View page
+
+router.get('/faculty-directory', async (req, res, next) => {
+  try {
+    const facultyProfiles = await FacultyProfile.find().populate('user', 'name email');
+    
+    // 👉 Make sure it renders 'student-faculty-view' here!
+    res.render('student-faculty-view', { 
+      user: req.user, 
+      facultyList: facultyProfiles || [] 
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 module.exports = router;

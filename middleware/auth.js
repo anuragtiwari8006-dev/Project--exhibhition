@@ -1,17 +1,23 @@
 const jwt = require('jsonwebtoken');
 
 const authenticateUser = (req, res, next) => {
+  
   const token = req.cookies.token;
   if (!token) return res.redirect('/login');
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
+    console.log(req.user);
+    
+    
+    
     next();
   } catch (err) {
     res.clearCookie('token');
     return res.redirect('/login');
   }
+
 };
 
 const requireRole = (...allowedRoles) => {
