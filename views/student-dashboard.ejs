@@ -246,17 +246,77 @@ mask-composite: exclude;
         <div class="space-y-2.5">
           <% if (typeof issues !== 'undefined' && issues && issues.length > 0) { %>
             <% issues.forEach(issue => { %>
-              <div class="flex items-center justify-between p-4 rounded-2xl nature-table-row text-xs">
-                <div>
-                  <span class="font-medium text-white block"><%= issue.category %></span>
-                  <span class="text-white/60 font-light text-[11px]"><%= issue.description %></span>               
-                </div>
-                <span class="text-white/60 font-light text-[11px]"><% if (issue.urgency === 'High') { %>🚨 High Priority<% } else if (issue.urgency === 'Medium') { %>⚠️ Medium<% } else { %>Low<% } %></span>
-                <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] border border-white/20 bg-white/5 text-white/80">
-                  <%= issue.status %>
-                </span>
-              </div>
-            <% }) %>
+
+  <%
+    const createdTime = new Date(issue.createdAt);
+    const endTime = issue.status === 'Resolved'
+      ? new Date(issue.updatedAt)
+      : new Date();
+
+    const diffMins = Math.floor(
+      (endTime - createdTime) / (1000 * 60)
+    );
+
+    const hrs = Math.floor(diffMins / 60);
+    const mins = diffMins % 60;
+
+    let timeText;
+
+    if (hrs >= 24) {
+      const days = Math.floor(hrs / 24);
+      const remainingHrs = hrs % 24;
+
+      timeText = remainingHrs > 0
+        ? `${days}d ${remainingHrs}h`
+        : `${days}d`;
+
+    } else if (hrs > 0) {
+      timeText = `${hrs}h ${mins}m`;
+
+    } else {
+      timeText = `${mins}m`;
+    }
+  %>
+
+  <div class="flex items-center justify-between p-4 rounded-2xl nature-table-row text-xs">
+
+    <div>
+      <span class="font-medium text-white block">
+        <%= issue.category %>
+      </span>
+
+      <span class="text-white/60 font-light text-[11px]">
+        <%= issue.description %>
+      </span>
+    </div>
+
+    <span class="text-white/60 font-light text-[11px]">
+      <% if (issue.urgency === 'High') { %>
+        🚨 High Priority
+      <% } else if (issue.urgency === 'Medium') { %>
+        ⚠️ Medium
+      <% } else { %>
+        Low
+      <% } %>
+    </span>
+
+    <!-- TIMER -->
+    <span class="text-white/60 font-light text-[11px]">
+      <% if (issue.status === 'Resolved') { %>
+        ⚡ <%= timeText %>
+      <% } else { %>
+        ⏳ <%= timeText %> elapsed
+      <% } %>
+    </span>
+
+    <!-- STATUS -->
+    <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] border border-white/20 bg-white/5 text-white/80">
+      <%= issue.status %>
+    </span>
+
+  </div>
+
+<% }) %>
           <% } else { %>
             <p class="text-xs text-white/40 italic font-light">No tickets logged.</p>
           <% } %>
