@@ -54,6 +54,24 @@ router.post('/verify-passcode', async (req, res, next) => {
       });
     }
 
+    // Reject if today is past the applied visit date
+    if (visitor.visitDate) {
+      const visitDayEnd = new Date(visitor.visitDate);
+      visitDayEnd.setHours(23, 59, 59, 999);
+
+      if (new Date() > visitDayEnd) {
+        visitor.status = 'EXPIRED';
+        await visitor.save();
+
+        return res.render('security-dashboard', { 
+          user: req.user, 
+          recentLogs, 
+          error: 'Passcode Expired: The applied visit date has passed.',
+          success: null 
+        });
+      }
+    }
+
     // Normalize status for comparison
     const currentStatus = String(visitor.status).toUpperCase();
 

@@ -225,6 +225,18 @@ mask-composite: exclude;
           <div>
             <label class="block text-[11px] uppercase tracking-[0.2em] font-light text-white/70 mb-2">Visitor Phone</label>
             <input type="text" name="visitorPhone" placeholder="Phone Number" required class="nature-input w-full rounded-2xl px-4 py-3 text-xs font-light placeholder:text-white/30" />
+            <div>
+  <label class="block text-[11px] uppercase tracking-[0.2em] font-light text-white/70 mb-2">
+    Visit Date
+  </label>
+
+  <input
+    type="date"
+    name="visitDate"
+    required
+    class="nature-input w-full rounded-2xl px-4 py-3 text-xs font-light"
+  />
+</div>
           </div>
           <button type="submit" class="liquid-glass w-full py-3.5 rounded-full text-white uppercase tracking-[0.2em] text-xs font-light flex items-center justify-center gap-2">
             <i data-lucide="key" class="w-3.5 h-3.5 text-white/70"></i>
@@ -324,27 +336,86 @@ mask-composite: exclude;
       </div>
 
       <div class="nature-glass rounded-3xl p-6 md:p-8">
-        <h3 class="font-garamond text-xl text-white mb-5 flex items-center gap-2">
-          <i data-lucide="shield-check" class="w-4 h-4 text-white/70"></i>
-          Gate Passes Issued
-        </h3>
-        <div class="space-y-2.5">
-          <% if (typeof visitors !== 'undefined' && visitors && visitors.length > 0) { %>
-            <% visitors.forEach(pass => { %>
-              <div class="flex items-center justify-between p-4 rounded-2xl nature-table-row text-xs">
-                <div>
-                  <span class="font-medium text-white block"><%= pass.visitorName || pass.name %></span>
-                  <code class="text-[10px] font-mono tracking-widest text-white/50"><%= pass.passcode || pass.code %></code>
-                </div>
-                <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] border border-white/20 bg-white/5 text-white/80">
-                  <%= pass.status %>
-                </span>
-              </div>
-            <% }) %>
-          <% } else { %>
-            <p class="text-xs text-white/40 italic font-light">No active passes found.</p>
-          <% } %>
+<h3 class="font-garamond text-xl text-white mb-5 flex items-center gap-2">
+  <i data-lucide="shield-check" class="w-4 h-4 text-white/70"></i>
+  Gate Passes Issued
+</h3>
+
+<div class="space-y-2.5">
+
+  <% if (typeof visitors !== 'undefined' && visitors && visitors.length > 0) { %>
+
+    <% visitors.forEach(pass => { %>
+
+      <div class="flex items-center justify-between p-4 rounded-2xl nature-table-row text-xs">
+
+        <!-- Visitor Information -->
+        <div>
+          <span class="font-medium text-white block">
+            <%= pass.visitorName %>
+          </span>
+
+          <code class="text-[10px] font-mono tracking-widest text-white/70">
+            <%= pass.passcode %>
+          </code>
+
+          <span class="text-[11px] text-white/60 block">
+            Visit Date:
+            <%= pass.visitDate
+                ? new Date(pass.visitDate).toLocaleDateString()
+                : 'N/A' %>
+          </span>
         </div>
+
+        <!-- QR CODE -->
+        <% if (pass.qrCode) { %>
+          <img
+            src="<%= pass.qrCode %>"
+            alt="Gate Pass QR Code"
+            class="w-24 h-24 bg-white p-2 rounded-xl"
+          >
+        <% } %>
+
+        <!-- STATUS -->
+        <% if (pass.status === 'APPROVED' || pass.status === 'Approved') { %>
+
+          <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] border border-white/20 bg-white/5 text-white/80">
+            APPROVED
+          </span>
+
+        <% } else if (pass.status === 'CheckedIn') { %>
+
+          <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] border border-white/20 bg-white/5 text-white/80">
+            CHECKED IN
+          </span>
+
+        <% } else if (pass.status === 'EXPIRED') { %>
+
+          <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] border border-white/20 bg-white/5 text-white/80">
+            EXPIRED
+          </span>
+
+        <% } else { %>
+
+          <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] border border-white/20 bg-white/5 text-white/80">
+            PENDING
+          </span>
+
+        <% } %>
+
+      </div>
+
+    <% }) %>
+
+  <% } else { %>
+
+    <p class="text-xs text-white/40 italic font-light">
+      No active passes found.
+    </p>
+
+  <% } %>
+
+</div>
       </div>
 
     </div>
