@@ -132,14 +132,20 @@
 Low
 <% } %></td>
               <td>
-                <form action="/warden/issues/update/<%= issue._id %>" method="POST" style="display:flex; gap: 5px;">
-                  <select name="status">
-                    <option value="Pending" <%= issue.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                    <option value="In Progress" <%= issue.status === 'In Progress' ? 'selected' : '' %>>In Progress</option>
-                    <option value="Resolved" <%= issue.status === 'Resolved' ? 'selected' : '' %>>Resolved</option>
-                  </select>
-                  <button type="submit">Update</button>
-                </form>
+                <td>
+  <% if (issue.status !== 'Resolved') { %>
+    <form action="/warden/issues/update/<%= issue._id %>" method="POST" style="display:flex; gap: 5px;">
+      <select name="status">
+        <option value="Pending" <%= issue.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+        <option value="In Progress" <%= issue.status === 'In Progress' ? 'selected' : '' %>>In Progress</option>
+        <option value="Resolved">Resolved</option>
+      </select>
+      <button type="submit">Update</button>
+    </form>
+  <% } else { %>
+    <span>Resolved</span>
+  <% } %>
+</td>
               </td>
             </tr>
           <% }) %>
