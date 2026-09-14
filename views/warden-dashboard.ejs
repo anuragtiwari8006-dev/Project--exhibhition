@@ -51,7 +51,7 @@
         <% announcements.forEach(item => { %>
           <li style="margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 10px;">
             <strong><%= item.title %></strong> 
-            <small style="color: #666;">(Posted by: <%= item.postedBy ? item.postedBy.name : 'Warden' %> on <%= new Date(item.createdAt).toLocaleDateString() %>)</small>
+            <small style="color: #666;">(Posted by: <%= item.postedBy %> on <%= new Date(item.createdAt).toLocaleDateString() %>)</small>
             <p style="margin: 5px 0 0 0;"><%= item.content %></p>
           </li>
         <% }) %>
@@ -111,6 +111,7 @@
           <th>Category</th>
           <th>Description</th>
           <th>Status</th>
+          <th>Urgency</th>
           <th>Update Action</th>
         </tr>
       </thead>
@@ -123,6 +124,13 @@
               <td><%= issue.category %></td>
               <td><%= issue.description %></td>
               <td><%= issue.status %></td>
+              <td><% if (issue.urgency === 'High') { %>
+🚨 High
+<% } else if (issue.urgency === 'Medium') { %>
+⚠️ Medium
+<% } else { %>
+Low
+<% } %></td>
               <td>
                 <form action="/warden/issues/update/<%= issue._id %>" method="POST" style="display:flex; gap: 5px;">
                   <select name="status">
