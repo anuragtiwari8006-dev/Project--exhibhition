@@ -53,9 +53,15 @@ router.post('/announcements', async (req, res, next) => {
 // POST Update Maintenance Issue Status
 router.post('/issues/update/:id', async (req, res, next) => {
   try {
-    await MaintenanceIssue.findByIdAndUpdate(req.params.id, { 
-      status: req.body.status 
-    });
+    const updateData = { status: req.body.status };
+    
+    if (req.body.status === 'Resolved') {
+      updateData.resolvedAt = new Date();
+    } else {
+      updateData.resolvedAt = null;
+    }
+
+    await MaintenanceIssue.findByIdAndUpdate(req.params.id, updateData);
     res.redirect('/warden/dashboard');
   } catch (err) {
     next(err);

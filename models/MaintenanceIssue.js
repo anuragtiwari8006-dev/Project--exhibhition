@@ -1,11 +1,22 @@
+// models/MaintenanceIssue.js
 const mongoose = require('mongoose');
 
 const maintenanceIssueSchema = new mongoose.Schema({
   resident: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   roomNumber: { type: String, required: true },
-  category: { type: String, enum: ['Plumbing', 'Electrical', 'Carpentry', 'Cleanliness', 'Other'], required: true },
+  category: { 
+    type: String, 
+    enum: ['Plumbing', 'Electrical', 'Carpentry', 'Cleaning', 'Cleanliness', 'Other'], 
+    required: true 
+  },
+  urgency: {
+    type: String,
+    enum: ['High', 'Medium', 'Low'],
+    default: 'Medium'
+  },
   description: { type: String, required: true },
-  status: { type: String, enum: ['Pending', 'In Progress', 'Resolved'], default: 'Pending' }
+  status: { type: String, enum: ['Pending', 'In Progress', 'Resolved'], default: 'Pending' },
+  resolvedAt: { type: Date } // Tracks exact resolution timestamp
 }, { timestamps: true });
 
 module.exports = mongoose.model('MaintenanceIssue', maintenanceIssueSchema);

@@ -4,6 +4,7 @@ const MaintenanceIssue = require('../models/MaintenanceIssue');
 const Visitor = require('../models/Visitor');
 const Announcement = require('../models/Announcement');
 const FacultyProfile = require('../models/FacultyProfile');
+const { detectUrgency } = require('../utils/urgencyDetector');
 
 // Middlewares
 const { authenticateUser, requireRole } = require('../middleware/auth');
@@ -103,5 +104,32 @@ router.get('/faculty-directory', async (req, res, next) => {
     next(err);
   }
 });
+router.post(
+  '/issues',
+  ticketSubmissionLimiter,
+  sanitizeFormInputs,
+  enforceMaxPendingIssues,
+  async (req, res, next) => {
+    try {
+      const userId = req.user.id || req.user._id;
+      const { category, description } = req.body;
+
+      // Urgency is determined automatically from description text
+      const calculatedUrgency = detectUrgency(description);
+
+      await MaintenanceIssue.create({
+        resident: userId,
+        roomNumber: req.user.roomNumber || 'N/A',
+        category: category,
+        urgency: calculatedUrgency,
+        description: description
+      });
+
+      res.redirect('/student/dashboard');
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 module.exports = router;

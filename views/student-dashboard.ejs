@@ -86,8 +86,9 @@
         rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
         rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
       -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
+mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+-webkit-mask-composite: xor;
+mask-composite: exclude;
       pointer-events: none;
     }
 
@@ -248,8 +249,9 @@
               <div class="flex items-center justify-between p-4 rounded-2xl nature-table-row text-xs">
                 <div>
                   <span class="font-medium text-white block"><%= issue.category %></span>
-                  <span class="text-white/60 font-light text-[11px]"><%= issue.description %></span>
+                  <span class="text-white/60 font-light text-[11px]"><%= issue.description %></span>               
                 </div>
+                <span class="text-white/60 font-light text-[11px]"><% if (issue.urgency === 'High') { %>🚨 High Priority<% } else if (issue.urgency === 'Medium') { %>⚠️ Medium<% } else { %>Low<% } %></span>
                 <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] border border-white/20 bg-white/5 text-white/80">
                   <%= issue.status %>
                 </span>
@@ -286,6 +288,12 @@
       </div>
 
     </div>
+   
+
+
+
+
+
 
   </main>
 
