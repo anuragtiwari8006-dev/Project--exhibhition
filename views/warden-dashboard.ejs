@@ -51,7 +51,7 @@
         <% announcements.forEach(item => { %>
           <li style="margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 10px;">
             <strong><%= item.title %></strong> 
-            <small style="color: #666;">(Posted by: <%= item.postedBy %> on <%= new Date(item.createdAt).toLocaleDateString() %>)</small>
+            <small style="color: #666;">(Posted by: <%= item.postedBy ? item.postedBy.name : 'Warden' %> on <%= new Date(item.createdAt).toLocaleDateString() %>)</small>
             <p style="margin: 5px 0 0 0;"><%= item.content %></p>
           </li>
         <% }) %>
