@@ -67,13 +67,13 @@
     <table>
       <thead>
         <tr>
-          <th>Room No</th>
           <th>Student Name</th>
-          <th>Visitor Name</th>
-          <th>Visitor Phone</th>
-          <th>Passcode</th>
-          <th>Status</th>
-          <th>Action</th>
+<th>Visitor Name</th>
+<th>Visitor Phone</th>
+<th>Visit Date</th>
+<th>Passcode</th>
+<th>Status</th>
+<th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -84,7 +84,16 @@
               <td><%= visitor.resident ? visitor.resident.name : 'N/A' %></td>
               <td><%= visitor.visitorName %></td>
               <td><%= visitor.visitorPhone %></td>
-              <td><code><%= visitor.passcode %></code></td>
+
+<td>
+  <%= visitor.visitDate
+      ? new Date(visitor.visitDate).toLocaleDateString()
+      : 'N/A' %>
+</td>
+
+<td>
+  <code><%= visitor.passcode %></code>
+</td>
               <td><span class="badge pending"><%= visitor.status %></span></td>
               <td>
                 <form action="/warden/visitors/approve/<%= visitor._id %>" method="POST" style="margin: 0;">
@@ -181,7 +190,7 @@
             </tr>
           <% }) %>
         <% } else { %>
-          <tr><td colspan="6">No maintenance issues reported.</td></tr>
+          <tr><td colspan="8">No maintenance issues reported.</td></tr>
         <% } %>
       </tbody>
     </table>

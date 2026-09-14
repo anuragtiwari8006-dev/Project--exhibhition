@@ -1,69 +1,682 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Security Checkpoint Portal</title>
+
+  <!-- QR SCANNER LIBRARY -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; }
-    .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .alert-error { background: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 15px; }
-    .alert-success { background: #d4edda; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 15px; }
-    input[type="text"] { padding: 10px; width: 250px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
-    button { padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-    th { background: #343a40; color: white; }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #343a40;
+    }
+
+    h3 {
+      color: #343a40;
+      margin-top: 0;
+    }
+
+    /* ALERTS */
+
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #f5c6cb;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #c3e6cb;
+    }
+
+    /* QR SECTION */
+
+    .scanner-section {
+      text-align: center;
+    }
+
+    #reader {
+      width: 100%;
+      max-width: 420px;
+      margin: 20px auto;
+    }
+
+    #scanMessage {
+      margin: 15px 0;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .scanner-note {
+      font-size: 14px;
+      color: #777;
+      margin-top: 10px;
+    }
+
+    /* DIVIDER */
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 30px 0;
+      color: #777;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #ddd;
+    }
+
+    /* FORM */
+
+    .manual-section {
+      text-align: center;
+    }
+
+    .manual-section label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      width: 280px;
+      max-width: 100%;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: #28a745;
+    }
+
+    button {
+      padding: 12px 20px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+
+    button:hover {
+      background: #218838;
+    }
+
+    /* TABLE */
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      min-width: 650px;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #343a40;
+      color: white;
+    }
+
+    tr:hover {
+      background: #f8f9fa;
+    }
+
+    .status {
+      color: green;
+      font-weight: bold;
+    }
+
+    .empty {
+      text-align: center;
+      color: #777;
+      padding: 20px;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 600px) {
+
+      body {
+        padding: 10px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      button {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 280px;
+        max-width: 100%;
+      }
+
+      input[type="text"] {
+        width: 280px;
+      }
+    }
   </style>
 </head>
+
+
 <body>
 
-  <div class="card">
-    <h2>🛡️ Gate Entry Verification</h2>
+  <div class="container">
 
-    <% if (typeof error !== 'undefined' && error) { %>
-      <div class="alert-error">⚠️ <%= error %></div>
-    <% } %>
+    <!-- ================================= -->
+    <!-- GATE ENTRY VERIFICATION -->
+    <!-- ================================= -->
 
-    <% if (typeof success !== 'undefined' && success) { %>
-      <div class="alert-success">✅ <%= success %></div>
-    <% } %>
+    <div class="card">
 
-    <form action="/security/verify-passcode" method="POST">
-      <label for="passcode"><strong>Enter Visitor Passcode:</strong></label><br><br>
-      <input type="text" id="passcode" name="passcode" placeholder="6-digit code (e.g. 415237)" required maxlength="6" autocomplete="off" />
-      <button type="submit">Verify & Check-In</button>
-    </form>
-  </div>
+      <h2>🛡️ Gate Entry Verification</h2>
 
-  <div class="card">
-    <h3>📋 Recent Visitor Check-Ins</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Visitor Name</th>
-          <th>Student / Resident</th>
-          <th>Room No</th>
-          <th>Check-In Time</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (typeof recentLogs !== 'undefined' && recentLogs.length > 0) { %>
-          <% recentLogs.forEach(log => { %>
+
+      <!-- ERROR MESSAGE -->
+
+      <% if (typeof error !== 'undefined' && error) { %>
+
+        <div class="alert-error">
+          ⚠️ <%= error %>
+        </div>
+
+      <% } %>
+
+
+      <!-- SUCCESS MESSAGE -->
+
+      <% if (typeof success !== 'undefined' && success) { %>
+
+        <div class="alert-success">
+          ✅ <%= success %>
+        </div>
+
+      <% } %>
+
+
+      <!-- =============================== -->
+      <!-- QR SCANNER -->
+      <!-- =============================== -->
+
+      <div class="scanner-section">
+
+        <h3>📷 Scan Gate Pass QR Code</h3>
+
+        <p>
+          Scan the visitor's QR code to automatically verify the gate pass.
+        </p>
+
+
+        <!-- CAMERA AREA -->
+
+        <div id="reader"></div>
+
+
+        <!-- SCAN STATUS -->
+
+        <div id="scanMessage">
+          📷 Allow camera access to start scanning.
+        </div>
+
+
+        <div class="scanner-note">
+          Position the QR code inside the scanning box.
+        </div>
+
+      </div>
+
+
+      <!-- DIVIDER -->
+
+      <div class="divider">
+        OR
+      </div>
+
+
+      <!-- =============================== -->
+      <!-- MANUAL PASSCODE -->
+      <!-- =============================== -->
+
+      <div class="manual-section">
+
+        <h3>🔢 Enter Passcode Manually</h3>
+
+        <form
+          id="verifyForm"
+          action="/security/verify-passcode"
+          method="POST"
+        >
+
+          <label for="passcode">
+            <strong>Visitor Passcode:</strong>
+          </label>
+
+
+          <input
+            type="text"
+            id="passcode"
+            name="passcode"
+            placeholder="6-digit code"
+            maxlength="6"
+            minlength="6"
+            pattern="[0-9]{6}"
+            required
+            autocomplete="off"
+          >
+
+
+          <button type="submit">
+            Verify & Check-In
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- RECENT VISITOR CHECK-INS -->
+    <!-- ================================= -->
+
+    <div class="card">
+
+      <h3>📋 Recent Visitor Check-Ins</h3>
+
+      <div class="table-container">
+
+        <table>
+
+          <thead>
+
             <tr>
-              <td><%= log.visitorName %></td>
-              <td><%= log.resident ? log.resident.name : 'N/A' %></td>
-              <td><strong><%= log.resident ? log.resident.roomNumber : 'N/A' %></strong></td>
-              <td><%= new Date(log.checkInTime || log.updatedAt).toLocaleString() %></td>
-              <td><span style="color: green; font-weight: bold;"><%= log.status %></span></td>
+
+              <th>
+                Visitor Name
+              </th>
+
+              <th>
+                Student / Resident
+              </th>
+
+              <th>
+                Room No
+              </th>
+
+              <th>
+                Check-In Time
+              </th>
+
+              <th>
+                Status
+              </th>
+
             </tr>
-          <% }) %>
-        <% } else { %>
-          <tr><td colspan="5">No visitor entries logged yet today.</td></tr>
-        <% } %>
-      </tbody>
-    </table>
+
+          </thead>
+
+
+          <tbody>
+
+            <% if (typeof recentLogs !== 'undefined' && recentLogs.length > 0) { %>
+
+              <% recentLogs.forEach(log => { %>
+
+                <tr>
+
+                  <td>
+                    <%= log.visitorName %>
+                  </td>
+
+
+                  <td>
+                    <%= log.resident ? log.resident.name : 'N/A' %>
+                  </td>
+
+
+                  <td>
+
+                    <strong>
+                      <%= log.resident
+                          ? log.resident.roomNumber
+                          : 'N/A'
+                      %>
+                    </strong>
+
+                  </td>
+
+
+                  <td>
+
+                    <%= new Date(
+                          log.checkInTime || log.updatedAt
+                        ).toLocaleString()
+                    %>
+
+                  </td>
+
+
+                  <td>
+
+                    <span class="status">
+                      <%= log.status %>
+                    </span>
+
+                  </td>
+
+                </tr>
+
+              <% }) %>
+
+
+            <% } else { %>
+
+              <tr>
+
+                <td
+                  colspan="5"
+                  class="empty"
+                >
+                  No visitor entries logged yet today.
+                </td>
+
+              </tr>
+
+            <% } %>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
   </div>
+
+
+  <!-- ================================= -->
+  <!-- QR SCANNER JAVASCRIPT -->
+  <!-- ================================= -->
+
+  <script>
+
+    const scanner = new Html5Qrcode("reader");
+
+    let scanning = true;
+
+
+    /*
+     * WHEN QR CODE IS SUCCESSFULLY SCANNED
+     */
+
+    function onScanSuccess(decodedText, decodedResult) {
+
+      if (!scanning) {
+        return;
+      }
+
+      scanning = false;
+
+
+      console.log("QR Code detected:");
+      console.log(decodedText);
+
+
+      const message =
+        document.getElementById("scanMessage");
+
+
+      message.innerText =
+        "✅ QR detected. Verifying gate pass...";
+
+
+      /*
+       * DEFAULT:
+       * Assume QR contains only the passcode.
+       */
+
+      let passcode = decodedText.trim();
+
+
+      /*
+       * IF QR CONTAINS JSON
+       *
+       * Example:
+       *
+       * {
+       *   "passcode": "415237",
+       *   "visitor": "Rahul",
+       *   "visitDate": "..."
+       * }
+       */
+
+      try {
+
+        const qrData =
+          JSON.parse(decodedText);
+
+
+        if (qrData.passcode) {
+
+          passcode =
+            String(qrData.passcode).trim();
+
+        }
+
+      } catch (error) {
+
+        /*
+         * QR is plain text.
+         * Nothing to do.
+         */
+
+      }
+
+
+      /*
+       * PUT PASSCODE INTO INPUT
+       */
+
+      document.getElementById("passcode").value =
+        passcode;
+
+
+      /*
+       * STOP CAMERA
+       */
+
+      scanner.stop()
+        .then(() => {
+
+          console.log("Scanner stopped.");
+
+          /*
+           * SUBMIT EXISTING FORM
+           */
+
+          document.getElementById("verifyForm").submit();
+
+        })
+
+        .catch(error => {
+
+          console.error(
+            "Scanner stop error:",
+            error
+          );
+
+          /*
+           * Even if scanner cannot stop,
+           * submit the form.
+           */
+
+          document.getElementById("verifyForm").submit();
+
+        });
+
+    }
+
+
+    /*
+     * SCAN FAILURE
+     *
+     * This happens continuously while
+     * the camera is looking for a QR.
+     *
+     * We don't show errors here because
+     * they would appear constantly.
+     */
+
+    function onScanFailure(error) {
+
+      // Ignore normal scanning failures.
+
+    }
+
+
+    /*
+     * GET AVAILABLE CAMERAS
+     */
+
+    Html5Qrcode.getCameras()
+
+      .then(cameras => {
+
+        if (cameras && cameras.length > 0) {
+
+          /*
+           * Use the first available camera.
+           */
+
+          scanner.start(
+
+            cameras[0].id,
+
+            {
+              fps: 10,
+
+              qrbox: {
+                width: 250,
+                height: 250
+              }
+
+            },
+
+            onScanSuccess,
+            onScanFailure
+
+          )
+
+          .then(() => {
+
+            document.getElementById(
+              "scanMessage"
+            ).innerText =
+              "📷 Camera active. Scan the QR code.";
+
+          })
+
+          .catch(error => {
+
+            console.error(
+              "Camera start error:",
+              error
+            );
+
+            document.getElementById(
+              "scanMessage"
+            ).innerText =
+              "❌ Unable to start camera.";
+
+          });
+
+        }
+
+        else {
+
+          document.getElementById(
+            "scanMessage"
+          ).innerText =
+            "❌ No camera found on this device.";
+
+        }
+
+      })
+
+
+      .catch(error => {
+
+        console.error(
+          "Camera permission error:",
+          error
+        );
+
+        document.getElementById(
+          "scanMessage"
+        ).innerText =
+          "❌ Camera permission denied or unavailable.";
+
+      });
+
+  </script>
 
 </body>
+
 </html>
