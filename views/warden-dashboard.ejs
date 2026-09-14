@@ -112,41 +112,72 @@
           <th>Description</th>
           <th>Status</th>
           <th>Urgency</th>
+          <th>Time</th>
           <th>Update Action</th>
+          
         </tr>
       </thead>
       <tbody>
         <% if (typeof issues !== 'undefined' && issues.length > 0) { %>
-          <% issues.forEach(issue => { %>
+<% issues.forEach(issue => { %>
+
+  <%
+    const createdTime = new Date(issue.createdAt);
+    const endTime = issue.status === 'Resolved'
+      ? new Date(issue.updatedAt)
+      : new Date();
+
+    const diffMins = Math.floor(
+      (endTime - createdTime) / (1000 * 60)
+    );
+
+    const hrs = Math.floor(diffMins / 60);
+    const mins = diffMins % 60;
+
+    let timeText;
+
+    if (hrs >= 24) {
+      const days = Math.floor(hrs / 24);
+      const remainingHrs = hrs % 24;
+
+      timeText = remainingHrs > 0
+        ? `${days}d ${remainingHrs}h`
+        : `${days}d`;
+
+    } else if (hrs > 0) {
+      timeText = `${hrs}h ${mins}m`;
+
+    } else {
+      timeText = `${mins}m`;
+    }
+  %>
+
+  <tr>       
             <tr>
               <td><strong><%= issue.roomNumber %></strong></td>
               <td><%= issue.resident ? issue.resident.name : 'N/A' %></td>
               <td><%= issue.category %></td>
               <td><%= issue.description %></td>
               <td><%= issue.status %></td>
-              <td><% if (issue.urgency === 'High') { %>
-🚨 High
-<% } else if (issue.urgency === 'Medium') { %>
-⚠️ Medium
-<% } else { %>
-Low
-<% } %></td>
+              <td><% if (issue.urgency === 'High') { %>🚨 High<% } else if (issue.urgency === 'Medium') { %>⚠️ Medium<% } else {            %>Low<% } %></td>
               <td>
-                <td>
-  <% if (issue.status !== 'Resolved') { %>
-    <form action="/warden/issues/update/<%= issue._id %>" method="POST" style="display:flex; gap: 5px;">
-      <select name="status">
-        <option value="Pending" <%= issue.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-        <option value="In Progress" <%= issue.status === 'In Progress' ? 'selected' : '' %>>In Progress</option>
-        <option value="Resolved">Resolved</option>
-      </select>
-      <button type="submit">Update</button>
-    </form>
+  <% if (issue.status === 'Resolved') { %>
+    ⚡ <%= timeText %>
   <% } else { %>
-    <span>Resolved</span>
+    ⏳ <%= timeText %> elapsed
   <% } %>
 </td>
+              <td><% if (issue.status !== 'Resolved') { %>
+                   <form action="/warden/issues/update/<%= issue._id %>" method="POST" style="display:flex; gap: 5px;">
+                   <select name="status">
+                   <option value="Pending" <%= issue.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                    <option value="In Progress" <%= issue.status === 'In Progress' ? 'selected' : '' %>>In Progress</option>
+                     <option value="Resolved">Resolved</option>
+                        </select>
+                    <button type="submit">Update</button>
+                    </form><% } else { %><span>Resolved</span><% } %>
               </td>
+ 
             </tr>
           <% }) %>
         <% } else { %>

@@ -15,7 +15,8 @@ const maintenanceIssueSchema = new mongoose.Schema({
     default: 'Medium'
   },
   description: { type: String, required: true },
-  status: { type: String, enum: ['Pending', 'In Progress', 'Resolved'], default: 'Pending' }
+  status: { type: String, enum: ['Pending', 'In Progress', 'Resolved'], default: 'Pending' },
+  resolvedAt: { type: Date } // Tracks exact resolution timestamp
 }, { timestamps: true });
 
 module.exports = mongoose.model('MaintenanceIssue', maintenanceIssueSchema);
