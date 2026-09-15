@@ -19,7 +19,6 @@
 
   <style>
     body {
-      background-color: #010101;
       color: #ffffff;
       font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
@@ -42,7 +41,6 @@
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.12);
       color: #ffffff;
-      transition: all 0.3s ease;
     }
     
     .nature-input:focus {
@@ -56,7 +54,6 @@
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.06);
       backdrop-filter: blur(10px);
-      transition: all 0.25s ease;
     }
 
     .nature-table-row:hover {
@@ -72,7 +69,6 @@
       box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
       position: relative;
       overflow: hidden;
-      transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
     }
 
     .liquid-glass::before {
@@ -91,25 +87,9 @@ mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
 mask-composite: exclude;
       pointer-events: none;
     }
-
-    .liquid-glass:hover {
-      background: rgba(255, 255, 255, 0.08);
-      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.25);
-    }
-
-    .liquid-glass:active {
-      transform: scale(0.98);
-    }
   </style>
 </head>
 <body class="min-h-full pb-16 relative overflow-x-hidden">
-
-  <!-- Background Video -->
-  <video autoPlay muted loop playsInline class="fixed inset-0 w-full h-full object-cover object-center -z-20 pointer-events-none">
-    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260619_191346_9d19d66e-86a4-47f7-8dc6-712c1788c3b2.mp4" type="video/mp4">
-  </video>
-
-  <div class="fixed inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/80 pointer-events-none -z-10"></div>
 
   <!-- Header Navigation -->
   <header class="sticky top-0 z-50 nature-glass border-b border-white/10 px-6 py-5">
