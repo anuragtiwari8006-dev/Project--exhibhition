@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -15,6 +16,7 @@ router.get('/login', (req, res) => {
 });
 
 // POST Login Route
+// Inside POST /login route in authRoutes.js
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -29,7 +31,9 @@ router.post('/login', async (req, res) => {
       return res.render('login', { error: 'Invalid Email or Password' });
     }
 
-    // Include roomNumber so resident ticket logging doesn't fail
+    // Clear existing session/cookie before setting new token
+    res.clearCookie('token');
+
     const payload = {
       id: user._id,
       _id: user._id,
@@ -39,16 +43,21 @@ router.post('/login', async (req, res) => {
       roomNumber: user.roomNumber || ''
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET || 'your_fallback_secret_key', {
-      expiresIn: '1d'
-    });
+    const secret = process.env.JWT_SECRET || 'your_fallback_secret_key';
+    const token = jwt.sign(payload, secret, { expiresIn: '1d' });
+
+    if (req.session) {
+      req.session.token = token;
+      req.session.user = payload;
+    }
 
     res.cookie('token', token, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000
     });
 
-    if (user.role === 'resident') {
+    // Redirect based on exact role
+    if (user.role === 'resident' || user.role === 'student') {
       return res.redirect('/student/dashboard');
     } else if (user.role === 'warden') {
       return res.redirect('/warden/dashboard');
@@ -59,7 +68,6 @@ router.post('/login', async (req, res) => {
     } else {
       return res.redirect('/');
     }
-
   } catch (err) {
     console.error('Login Error:', err);
     res.render('login', { error: 'An unexpected error occurred. Please try again.' });

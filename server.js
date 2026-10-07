@@ -5,6 +5,12 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const mongoose = require('mongoose'); // Added missing mongoose import
+const session = require('express-session');
+const connectMongo = require('connect-mongo');
+const MongoStore = connectMongo.default || connectMongo;
+
+
 const connectDB = require('./config/db');
 
 // Import Custom Middlewares
@@ -31,10 +37,28 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 
+// 2. CONFIGURE PERSISTENT SESSION MANAGEMENT
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/hostelDB';
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your_super_secret_jwt_key_12345',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: MONGO_URI,
+    ttl: 24 * 60 * 60 // 1 day
+  }),
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24, // 1 day duration
+    httpOnly: true,
+    sameSite: 'lax'
+  }
+}));
+
 // Attach Socket.IO to req object globally
 app.use((req, res, next) => {
   req.io = io;
-  req.app.set('io', io); // Ensures req.app.get('io') works inside routes
+  req.app.set('io', io);
   next();
 });
 
