@@ -1,0 +1,299 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biometric Attendance Kiosk</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- Load face-api.js from jsDelivr npm package distribution -->
+  <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.node-wasm.js" crossorigin="anonymous"></script>
+
+  <style>
+    body { 
+      background-color: #020617; 
+      color: #f8fafc; 
+      min-height: 100vh; 
+    }
+    .kiosk-card {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 20px;
+    }
+    .camera-container {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      height: 380px;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid #334155;
+      background: #000;
+    }
+    video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      transform: scaleX(-1);
+    }
+  </style>
+</head>
+<body class="d-flex align-items-center justify-content-center p-3">
+
+  <div class="card kiosk-card text-white shadow-lg p-4" style="max-width: 700px; width: 100%;">
+    <div class="text-center mb-3">
+      <h2 class="fw-bold text-primary">🖥️ Biometric Attendance Kiosk</h2>
+      <p class="text-secondary small">Position face inside camera frame for automatic scanning</p>
+    </div>
+
+    <!-- Live Camera Feed & Target Overlay Ring -->
+    <div class="camera-container mb-3">
+      <video id="kioskVideo" autoplay muted playsinline></video>
+      <canvas id="kioskCanvas"></canvas>
+    </div>
+
+    <!-- Status Alert Bar -->
+    <div id="statusAlert" class="alert alert-info text-center py-2 mb-3" role="alert">
+      Loading AI models...
+    </div>
+
+    <!-- Manual / Auto Controls -->
+    <div class="d-grid gap-2">
+      <button id="scanBtn" class="btn btn-primary btn-lg fw-semibold" onclick="triggerManualScan()" disabled>
+        📸 Manual Scan & Mark
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById('kioskVideo');
+    const canvas = document.getElementById('kioskCanvas');
+    const statusAlert = document.getElementById('statusAlert');
+    const scanBtn = document.getElementById('scanBtn');
+
+    let isProcessingScan = false;
+    let lastMarkedTime = 0;
+    const COOLDOWN_MS = 4000;
+    let aiReady = false;
+
+    // WebSocket initialization wrapper
+    try {
+      const socket = io();
+      socket.on('connect', () => console.log('⚡ Kiosk WebSocket Connected'));
+    } catch(e) {
+      console.warn('Socket connection optional/bypassed');
+    }
+
+    // Helper to dynamically load script fallback if head script failed
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        if (typeof faceapi !== 'undefined') return resolve();
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    // 1. Initialize Face API Models
+    async function startKioskSystem() {
+      try {
+        updateStatus('⌛ Loading AI Face Recognition Engine...', 'alert-info');
+
+        // Fallback script loader if window.faceapi is missing
+        if (typeof faceapi === 'undefined') {
+          await loadScript('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js');
+        }
+
+        if (typeof faceapi === 'undefined') {
+          throw new Error('face-api library unavailable');
+        }
+
+        const MODEL_URL = 'https://cdn.jsdelivr.net/gh/cbrandolino/camvas@master/models'; 
+        
+        // Load detection networks
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector ? faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model') : faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model'),
+          faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model'),
+          faceapi.nets.faceRecognitionNet.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model')
+        ]);
+
+        aiReady = true;
+        updateStatus('⌛ AI Engine Ready. Initializing Camera...', 'alert-info');
+        await startCameraFeed();
+      } catch (err) {
+        console.error('Initialization Error:', err);
+        updateStatus('⚠️ AI Model CDN load failed. Running in visual camera mode.', 'alert-warning');
+        await startCameraFeed();
+      }
+    }
+
+    // 2. Access Webcam
+    async function startCameraFeed() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+          audio: false
+        });
+
+        video.srcObject = stream;
+        video.onloadedmetadata = () => {
+          video.play();
+          updateStatus('✅ Kiosk Active. Position face inside target circle.', 'alert-success');
+          scanBtn.disabled = false;
+          runDetectionAndDrawingLoop();
+        };
+      } catch (err) {
+        console.error('Camera Stream Error:', err);
+        updateStatus('❌ Unable to access camera. Check browser permissions.', 'alert-danger');
+      }
+    }
+
+    // 3. Render Ring & Auto-Scan Trigger Loop
+    function runDetectionAndDrawingLoop() {
+      const ctx = canvas.getContext('2d');
+
+      setInterval(async () => {
+        canvas.width = video.clientWidth || 640;
+        canvas.height = video.clientHeight || 380;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const circleX = canvas.width / 2;
+        const circleY = canvas.height / 2;
+        const circleRadius = Math.min(canvas.width, canvas.height) * 0.32;
+
+        let isFaceCentered = false;
+        let descriptor = null;
+
+        if (aiReady && !video.paused && !video.ended) {
+          try {
+            let detection = null;
+            if (faceapi.nets.tinyFaceDetector && faceapi.nets.tinyFaceDetector.params) {
+              detection = await faceapi
+                .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.35 }))
+                .withFaceLandmarks()
+                .withFaceDescriptor();
+            } else {
+              detection = await faceapi
+                .detectSingleFace(video)
+                .withFaceLandmarks()
+                .withFaceDescriptor();
+            }
+
+            if (detection) {
+              const displaySize = { width: canvas.width, height: canvas.height };
+              const resized = faceapi.resizeResults(detection, displaySize);
+              const box = resized.detection.box;
+
+              const faceCenterX = box.x + box.width / 2;
+              const faceCenterY = box.y + box.height / 2;
+
+              // Distance from ring center
+              const distance = Math.hypot(faceCenterX - circleX, faceCenterY - circleY);
+
+              if (distance <= circleRadius * 0.6) {
+                isFaceCentered = true;
+                descriptor = Array.from(detection.descriptor);
+              }
+            }
+          } catch (e) {
+            console.error('Detection frame error:', e);
+          }
+        }
+
+        // Render Guide Target Circle
+        ctx.beginPath();
+        ctx.arc(circleX, circleY, circleRadius, 0, 2 * Math.PI);
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = isFaceCentered ? '#00ff88' : '#3b82f6';
+        ctx.shadowColor = isFaceCentered ? '#00ff88' : 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 10;
+        ctx.stroke();
+
+        // Automatic Backend Request
+        const now = Date.now();
+        if (isFaceCentered && descriptor && !isProcessingScan && (now - lastMarkedTime > COOLDOWN_MS)) {
+          isProcessingScan = true;
+          lastMarkedTime = now;
+          await submitAttendance(descriptor);
+        }
+      }, 200);
+    }
+
+    // 4. API Submission Call
+    async function submitAttendance(descriptor = null) {
+      scanBtn.disabled = true;
+      updateStatus('🔍 Face locked! Marking attendance...', 'alert-warning');
+
+      const snapCanvas = document.createElement('canvas');
+      snapCanvas.width = video.videoWidth || 640;
+      snapCanvas.height = video.videoHeight || 480;
+      const sCtx = snapCanvas.getContext('2d');
+      sCtx.drawImage(video, 0, 0, snapCanvas.width, snapCanvas.height);
+      const capturedImage = snapCanvas.toDataURL('image/jpeg', 0.8);
+
+      try {
+        const response = await fetch('/api/attendance/mark', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            inputDescriptor: descriptor,
+            capturedImage: capturedImage,
+            courseCode: 'CS301',
+            verificationMethod: 'FACE_RECOGNITION'
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          updateStatus(`🎉 ${data.message || 'Attendance Marked Successfully!'}`, 'alert-success');
+        } else {
+          updateStatus(`❌ ${data.message || 'Face Not Recognized'}`, 'alert-danger');
+        }
+      } catch (err) {
+        console.error('Submit Error:', err);
+        updateStatus('❌ Error communicating with attendance server.', 'alert-danger');
+      } finally {
+        setTimeout(() => {
+          isProcessingScan = false;
+          scanBtn.disabled = false;
+        }, COOLDOWN_MS);
+      }
+    }
+
+    function triggerManualScan() {
+      if (isProcessingScan) return;
+      isProcessingScan = true;
+      submitAttendance(null);
+    }
+
+    function updateStatus(msg, className) {
+      if (statusAlert) {
+        statusAlert.className = `alert ${className} text-center py-2 mb-3`;
+        statusAlert.innerText = msg;
+      }
+    }
+
+    window.addEventListener('load', startKioskSystem);
+  </script>
+</body>
+</html>

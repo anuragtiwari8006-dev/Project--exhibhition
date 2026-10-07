@@ -1,165 +1,457 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Faculty Control Panel</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+  <title>Synthetic Nature — Faculty Control Panel</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Modern Clean Font Stack -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
-    <div class="container">
-      <span class="navbar-brand fw-bold">🎓 Faculty Control Panel</span>
-      <div class="d-flex align-items-center gap-3">
-        <span class="text-white small">Logged in as: <strong><%= profile.user ? profile.user.name : user.name %></strong></span>
-        <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Socket.IO Client Script -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    body {
+      background-color: #030712;
+      color: #f9fafb;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .glass-nav {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .glass-row {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.2s ease;
+    }
+
+    .glass-row:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .form-input {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      transition: all 0.2s ease;
+    }
+    
+    .form-input:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: #3b82f6;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transition: all 0.2s ease;
+    }
+
+    .primary-btn:hover {
+      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    }
+
+    .warning-btn {
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      transition: all 0.2s ease;
+    }
+
+    .warning-btn:hover {
+      background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+    }
+
+    .success-btn {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      transition: all 0.2s ease;
+    }
+
+    .success-btn:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .secondary-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.2s ease;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Toggle switch styling */
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #f59e0b;
+      background-color: #f59e0b;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: rgba(245, 158, 11, 0.2);
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    /* Custom Scrollbar for Horizontal Tables */
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  </style>
+</head>
+<body class="min-h-full pb-16 relative overflow-x-hidden selection:bg-blue-500 selection:text-white">
+
+  <!-- Background Video -->
+  <video autoPlay muted loop playsInline class="fixed inset-0 w-full h-full object-cover object-center -z-20 pointer-events-none">
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260619_191346_9d19d66e-86a4-47f7-8dc6-712c1788c3b2.mp4" type="video/mp4">
+  </video>
+
+  <!-- Dark Ambient Overlay -->
+  <div class="fixed inset-0 bg-slate-950/75 backdrop-brightness-90 pointer-events-none -z-10"></div>
+
+  <!-- Header Navigation -->
+  <header class="sticky top-0 z-50 glass-nav px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+          <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold block">Synthetic Nature</span>
+          <h1 class="text-lg font-bold text-white tracking-tight">
+            Faculty Control Panel
+          </h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+          <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-400"></i>
+          <span>Logged in as: <strong class="text-white"><%= (typeof profile !== 'undefined' && profile.user) ? profile.user.name : ((typeof user !== 'undefined' && user.name) ? user.name : 'Faculty') %></strong></span>
+        </div>
+        <a href="/logout" class="secondary-btn px-4 py-2 rounded-xl text-xs font-medium text-slate-200 flex items-center gap-2">
+          <i data-lucide="log-out" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>Logout</span>
+        </a>
       </div>
     </div>
-  </nav>
+  </header>
 
-  <div class="container mb-5">
+  <main class="max-w-7xl mx-auto px-6 pt-8 space-y-8">
     
-    <div class="mb-4">
-      <h3 class="fw-bold">Welcome, <%= profile.user ? profile.user.name : user.name %>!</h3>
-      <p class="text-muted">Manage your academic room location, toggle your leave status, and update available free slots.</p>
+    <!-- Hero Title -->
+    <div>
+      <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">
+        Welcome, <%= (typeof profile !== 'undefined' && profile.user) ? profile.user.name : ((typeof user !== 'undefined' && user.name) ? user.name : 'Faculty') %>!
+      </h2>
+      <p class="text-sm text-slate-400 mt-0.5">
+        Manage your academic room location, toggle your leave status, and monitor live attendance.
+      </p>
     </div>
 
-    <div class="row g-4">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       
       <!-- Left Column: Room Info & Leave Status -->
-      <div class="col-md-5">
+      <div class="lg:col-span-5 space-y-8">
         
         <!-- Room/Cabin Update Form -->
-        <div class="card shadow-sm border-0 mb-4">
-          <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">📍 Room & Department Details</h5>
+        <section class="glass-card rounded-2xl p-6">
+          <div class="flex items-center gap-2.5 mb-5 border-b border-white/10 pb-3">
+            <i data-lucide="map-pin" class="w-4 h-4 text-blue-400"></i>
+            <h3 class="text-base font-bold text-white">Room & Department Details</h3>
           </div>
-          <div class="card-body">
-            <form action="/faculty/update-room" method="POST">
-              <div class="mb-3">
-                <label class="form-label fw-semibold">Department</label>
-                <input 
-                  type="text" 
-                  name="department" 
-                  class="form-control" 
-                  placeholder="e.g., Computer Science & Engineering"
-                  value="<%= profile.department || '' %>"
-                  required
-                >
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold">Academic Room / Cabin No.</label>
-                <input 
-                  type="text" 
-                  name="officeHoursRoom" 
-                  class="form-control" 
-                  placeholder="e.g., Academic Block A - Room 305"
-                  value="<%= profile.officeHoursRoom || '' %>"
-                  required
-                >
-              </div>
-              <button type="submit" class="btn btn-primary w-100">Save Details</button>
-            </form>
-          </div>
-        </div>
+
+          <form action="/faculty/update-room" method="POST" class="space-y-4">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Department</label>
+              <input 
+                type="text" 
+                name="department" 
+                class="form-input w-full rounded-xl px-4 py-3 text-xs placeholder:text-slate-500 font-normal" 
+                placeholder="e.g., Computer Science & Engineering"
+                value="<%= (typeof profile !== 'undefined' && profile.department) ? profile.department : '' %>"
+                required
+              />
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Academic Room / Cabin No.</label>
+              <input 
+                type="text" 
+                name="officeHoursRoom" 
+                class="form-input w-full rounded-xl px-4 py-3 text-xs placeholder:text-slate-500 font-normal" 
+                placeholder="e.g., Academic Block A - Room 305"
+                value="<%= (typeof profile !== 'undefined' && profile.officeHoursRoom) ? profile.officeHoursRoom : '' %>"
+                required
+              />
+            </div>
+
+            <button type="submit" class="primary-btn w-full py-3 rounded-xl text-white font-medium text-xs flex items-center justify-center gap-2 shadow-md">
+              <i data-lucide="save" class="w-3.5 h-3.5"></i>
+              <span>Save Details</span>
+            </button>
+          </form>
+        </section>
 
         <!-- On Leave / Available Toggle Form -->
-        <div class="card shadow-sm border-0">
-          <div class="card-header bg-warning text-dark">
-            <h5 class="mb-0">⚠️ Leave / Availability Toggle</h5>
+        <section class="glass-card rounded-2xl p-6">
+          <div class="flex items-center gap-2.5 mb-5 border-b border-white/10 pb-3">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+            <h3 class="text-base font-bold text-white">Leave / Availability Toggle</h3>
           </div>
-          <div class="card-body">
-            <form action="/faculty/update-leave" method="POST">
-              <div class="form-check form-switch mb-3">
+
+          <form action="/faculty/update-leave" method="POST" class="space-y-4">
+            <div class="p-4 rounded-xl glass-row flex items-center justify-between gap-4">
+              <label for="isOnLeave" class="text-xs font-bold text-white cursor-pointer select-none">
+                Mark Me as On Leave / Unavailable
+              </label>
+              <div class="relative inline-block w-12 align-middle select-none">
                 <input 
-                  class="form-check-input" 
                   type="checkbox" 
                   id="isOnLeave" 
                   name="isOnLeave" 
-                  <%= profile.isOnLeave ? 'checked' : '' %>
-                >
-                <label class="form-check-label fw-bold" for="isOnLeave">Mark Me as On Leave / Unavailable</label>
+                  class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-slate-400 border-4 border-slate-900 appearance-none cursor-pointer transition-all duration-200 ease-in left-0 top-0"
+                  <%= (typeof profile !== 'undefined' && profile.isOnLeave) ? 'checked' : '' %>
+                />
+                <label for="isOnLeave" class="toggle-label block overflow-hidden h-6 rounded-full bg-white/10 border border-white/10 cursor-pointer"></label>
               </div>
-              
-              <div class="mb-3">
-                <label class="form-label small text-muted">Leave Notice (Optional)</label>
-                <textarea 
-                  name="leaveNotice" 
-                  class="form-control" 
-                  rows="2" 
-                  placeholder="e.g., Away until 2 PM due to committee meeting."
-                ><%= profile.leaveNotice || '' %></textarea>
-              </div>
-              
-              <button type="submit" class="btn btn-warning w-100 fw-semibold">Update Status</button>
-            </form>
-          </div>
-        </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Leave Notice (Optional)</label>
+              <textarea 
+                name="leaveNotice" 
+                rows="2" 
+                class="form-input w-full rounded-xl p-3.5 text-xs placeholder:text-slate-500 resize-none font-normal" 
+                placeholder="e.g., Away until 2 PM due to committee meeting."
+              ><%= (typeof profile !== 'undefined' && profile.leaveNotice) ? profile.leaveNotice : '' %></textarea>
+            </div>
+
+            <button type="submit" class="warning-btn w-full py-3 rounded-xl text-white font-medium text-xs flex items-center justify-center gap-2 shadow-md">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <span>Update Status</span>
+            </button>
+          </form>
+        </section>
 
       </div>
 
-      <!-- Right Column: Free Slots Edit Panel -->
-      <div class="col-md-7">
-        <div class="card shadow-sm border-0">
-          <div class="card-header bg-secondary text-white">
-            <h5 class="mb-0">🕒 Manage Free Slots (Mon - Fri)</h5>
+      <!-- Right Column: Free Slots Edit Panel & Live Attendance -->
+      <div class="lg:col-span-7 space-y-8">
+        
+        <!-- Manage Free Slots Card -->
+        <section class="glass-card rounded-2xl p-6">
+          <div class="flex items-center gap-2.5 mb-5 border-b border-white/10 pb-3">
+            <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
+            <h3 class="text-base font-bold text-white">Manage Free Slots (Mon - Fri)</h3>
           </div>
-          <div class="card-body">
 
-            <!-- Add New Slot Form -->
-            <form action="/faculty/add-slot" method="POST" class="row g-2 mb-4 align-items-end bg-light p-3 rounded border">
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">Day</label>
-                <select name="day" class="form-select" required>
-                  <option value="">Select Day</option>
-                  <option value="Monday">Monday</option>
-                  <option value="Tuesday">Tuesday</option>
-                  <option value="Wednesday">Wednesday</option>
-                  <option value="Thursday">Thursday</option>
-                  <option value="Friday">Friday</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Start Time</label>
-                <input type="text" name="startTime" class="form-control" placeholder="10:00 AM" required>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">End Time</label>
-                <input type="text" name="endTime" class="form-control" placeholder="11:30 AM" required>
-              </div>
-              <div class="col-md-2">
-                <button type="submit" class="btn btn-success w-100">+ Add</button>
-              </div>
-            </form>
+          <!-- Add New Slot Form -->
+          <form action="/faculty/add-slot" method="POST" class="p-4 rounded-xl glass-row grid grid-cols-1 sm:grid-cols-12 gap-3 items-end mb-6">
+            <div class="sm:col-span-4 space-y-1">
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-300">Day</label>
+              <select name="day" class="form-input w-full rounded-xl px-3 py-2 text-xs font-medium cursor-pointer bg-slate-900 border-white/10" required>
+                <option value="" class="bg-slate-900 text-slate-400">Select Day</option>
+                <option value="Monday" class="bg-slate-900 text-white">Monday</option>
+                <option value="Tuesday" class="bg-slate-900 text-white">Tuesday</option>
+                <option value="Wednesday" class="bg-slate-900 text-white">Wednesday</option>
+                <option value="Thursday" class="bg-slate-900 text-white">Thursday</option>
+                <option value="Friday" class="bg-slate-900 text-white">Friday</option>
+              </select>
+            </div>
 
-            <!-- List & Delete Current Slots -->
-            <h6 class="fw-bold text-dark mb-3">Your Published Free Slots:</h6>
-            <% if (profile.freeSlots && profile.freeSlots.length > 0) { %>
-              <div class="list-group">
-                <% profile.freeSlots.forEach(slot => { %>
-                  <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                      <strong class="text-primary"><%= slot.day %>:</strong> 
-                      <span>🕒 <%= slot.startTime %> - <%= slot.endTime %></span>
-                    </div>
-                    <form action="/faculty/delete-slot" method="POST" class="m-0">
-                      <input type="hidden" name="slotId" value="<%= slot._id %>">
-                      <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2">&times; Remove</button>
-                    </form>
+            <div class="sm:col-span-3 space-y-1">
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-300">Start Time</label>
+              <input type="text" name="startTime" class="form-input w-full rounded-xl px-3 py-2 text-xs font-normal placeholder:text-slate-500" placeholder="10:00 AM" required />
+            </div>
+
+            <div class="sm:col-span-3 space-y-1">
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-300">End Time</label>
+              <input type="text" name="endTime" class="form-input w-full rounded-xl px-3 py-2 text-xs font-normal placeholder:text-slate-500" placeholder="11:30 AM" required />
+            </div>
+
+            <div class="sm:col-span-2">
+              <button type="submit" class="success-btn w-full py-2 rounded-xl text-white font-medium text-xs flex items-center justify-center gap-1 shadow-md">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>Add</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- List & Delete Current Slots -->
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Your Published Free Slots:</h4>
+          
+          <% if (typeof profile !== 'undefined' && profile.freeSlots && profile.freeSlots.length > 0) { %>
+            <div class="space-y-2">
+              <% profile.freeSlots.forEach(slot => { %>
+                <div class="p-3.5 rounded-xl glass-row flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2 text-xs">
+                    <span class="font-bold text-blue-400"><%= slot.day %>:</span>
+                    <span class="text-slate-300 flex items-center gap-1">
+                      <i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
+                      <%= slot.startTime %> - <%= slot.endTime %>
+                    </span>
                   </div>
-                <% }); %>
-              </div>
-            <% } else { %>
-              <p class="text-muted small italic">No free slots added yet. Use the form above to add slots for students.</p>
-            <% } %>
+                  <form action="/faculty/delete-slot" method="POST" class="m-0">
+                    <input type="hidden" name="slotId" value="<%= slot._id %>">
+                    <button type="submit" class="text-xs font-medium px-2.5 py-1 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 transition-all flex items-center gap-1">
+                      <i data-lucide="trash-2" class="w-3 h-3"></i>
+                      <span>Remove</span>
+                    </button>
+                  </form>
+                </div>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <p class="text-xs text-slate-400 italic py-2">No free slots added yet. Use the form above to add slots for students.</p>
+          <% } %>
+        </section>
 
+        <!-- Live Biometric Class Attendance Panel -->
+        <section class="glass-card rounded-2xl p-6">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5 border-b border-white/10 pb-3">
+            <div class="flex items-center gap-2.5">
+              <i data-lucide="bar-chart-3" class="w-4 h-4 text-blue-400"></i>
+              <h3 class="text-base font-bold text-white">
+                Real-Time Class Attendance (<%= typeof courseCode !== 'undefined' ? courseCode : 'CS301' %>)
+              </h3>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 flex items-center gap-1.5" id="liveStatusBadge">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Live Sync Connected
+            </span>
           </div>
-        </div>
+
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left text-xs border-separate border-spacing-y-2">
+              <thead>
+                <tr class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+                  <th class="pb-2 px-3">Student Name</th>
+                  <th class="pb-2 px-3">Room</th>
+                  <th class="pb-2 px-3">Status</th>
+                  <th class="pb-2 px-3">Method</th>
+                  <th class="pb-2 px-3 text-right">Time Marked</th>
+                </tr>
+              </thead>
+              <tbody id="facultyAttendanceTable">
+                <% 
+                  const logsToRender = (typeof todayLogs !== 'undefined' && todayLogs.length > 0) 
+                    ? todayLogs 
+                    : ((typeof attendances !== 'undefined' && attendances.length > 0) ? attendances : []); 
+                %>
+                <% if (logsToRender.length > 0) { %>
+                  <% logsToRender.forEach(record => { %>
+                    <tr class="glass-row rounded-xl">
+                      <td class="py-3 px-3 rounded-l-xl font-bold text-white">
+                        <%= record.student ? record.student.name : 'Student' %>
+                      </td>
+                      <td class="py-3 px-3 text-slate-300">
+                        <%= record.student ? (record.student.roomNumber || record.student.roomNo || 'B-302') : 'B-302' %>
+                      </td>
+                      <td class="py-3 px-3">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 uppercase tracking-wider">
+                          PRESENT
+                        </span>
+                      </td>
+                      <td class="py-3 px-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold border border-blue-500/30 bg-blue-500/10 text-blue-300 uppercase">
+                          <%= record.verificationMethod || 'FACE_RECOGNITION' %>
+                        </span>
+                      </td>
+                      <td class="py-3 px-3 text-right rounded-r-xl text-slate-400 font-medium">
+                        <%= new Date(record.markedAt).toLocaleTimeString() %>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr id="emptyAttendanceRow">
+                    <td colspan="5" class="text-center py-6 text-xs text-slate-400 font-medium">
+                      No biometric attendance scans registered for today yet.
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
       </div>
 
     </div>
-  </div>
+  </main>
 
+  <!-- Real-time Socket.IO Script -->
+  <script>
+    const socket = io();
+
+    socket.on('attendance_updated', (data) => {
+      const tableBody = document.getElementById('facultyAttendanceTable');
+      const emptyRow = document.getElementById('emptyAttendanceRow');
+
+      if (emptyRow) emptyRow.remove();
+
+      const timeStr = new Date(data.markedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      const newRowHtml = `
+        <tr class="glass-row rounded-xl border-emerald-500/30 bg-emerald-500/10">
+          <td class="py-3 px-3 rounded-l-xl font-bold text-white">${data.studentName}</td>
+          <td class="py-3 px-3 text-slate-300">${data.roomNo || data.roomNumber || 'B-302'}</td>
+          <td class="py-3 px-3">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 uppercase tracking-wider">
+              PRESENT
+            </span>
+          </td>
+          <td class="py-3 px-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold border border-blue-500/30 bg-blue-500/10 text-blue-300 uppercase">
+              ${data.verificationMethod || 'FACE_RECOGNITION'}
+            </span>
+          </td>
+          <td class="py-3 px-3 text-right rounded-r-xl text-slate-300 font-medium">${timeStr}</td>
+        </tr>
+      `;
+
+      tableBody.insertAdjacentHTML('afterbegin', newRowHtml);
+    });
+
+    lucide.createIcons();
+  </script>
 </body>
 </html>

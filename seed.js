@@ -25,8 +25,59 @@ const seedDatabase = async () => {
         password: hashedPassword,
         role: 'resident',
         roomNumber: 'B-302',
+        isFaceRegistered: false,
+    faceDescriptor: [],
+        
         phone: '9876543210'
       },
+        {
+        name: 'Hraday Singh',
+        email: 'student1@hostel.com',
+        password: hashedPassword,
+        role: 'resident',
+        roomNumber: 'B-304',
+        isFaceRegistered: false,
+    faceDescriptor: [],
+        
+        phone: '9876543211'
+      },
+        {
+        name: 'Sanket kumar',
+        email: 'student2@hostel.com',
+        password: hashedPassword,
+        role: 'resident',
+        roomNumber: 'B-306',
+        isFaceRegistered: false,
+    faceDescriptor: [],
+        
+        phone: '9876543213'
+      },
+        {
+        name: 'Sambit kumar',
+        email: 'student3@hostel.com',
+        password: hashedPassword,
+        role: 'resident',
+        roomNumber: 'B-309',
+        isFaceRegistered: false,
+    faceDescriptor: [],
+        
+        phone: '9876543215'
+      },
+        {
+        name: 'Prince Raj',
+        email: 'student4@hostel.com',
+        password: hashedPassword,
+        role: 'resident',
+        roomNumber: 'B-113',
+        isFaceRegistered: false,
+    faceDescriptor: [],
+        
+        phone: '9876543219'
+      },
+
+    
+      
+  
       {
         name: 'Dr. R. K. Sharma',
         email: 'warden@hostel.com',

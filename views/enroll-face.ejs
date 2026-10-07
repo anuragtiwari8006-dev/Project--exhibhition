@@ -1,0 +1,286 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enroll Face Biometrics</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Load face-api.js from CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+  <style>
+    body { background-color: #0f172a; color: #fff; min-height: 100vh; }
+    .camera-box {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      height: 375px;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      background: #020617;
+    }
+    video, canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body class="d-flex align-items-center justify-content-center p-3">
+
+  <div class="card bg-dark text-white border-secondary shadow-lg p-4" style="max-width: 550px; width: 100%;">
+    <div class="text-center mb-3">
+      <h3 class="fw-bold">👤 Register Face Biometrics</h3>
+      <p class="text-muted small">Align your face inside the camera view and click capture</p>
+    </div>
+
+    <!-- Student Selection Dropdown -->
+    <div class="mb-3">
+      <label for="studentSelect" class="form-label text-light fw-bold">Select Student to Enroll:</label>
+      <select id="studentSelect" class="form-select bg-dark text-light border-secondary" required>
+        <option value="">-- Choose Student Profile --</option>
+      </select>
+    </div>
+
+    <!-- Camera Display Area -->
+    <div class="camera-box mb-3">
+      <video id="enrollVideo" autoplay muted playsinline></video>
+      <canvas id="enrollCanvas" style="display: none;"></canvas>
+    </div>
+
+    <!-- Status Alert Bar -->
+    <div id="statusAlert" class="alert alert-info text-center py-2 mb-3" role="alert">
+      ⌛ Loading face recognition models...
+    </div>
+
+    <!-- Controls -->
+    <div class="d-grid gap-2">
+      <button id="captureBtn" class="btn btn-primary btn-lg fw-semibold" onclick="captureAndEnroll()" disabled>
+        📸 Capture & Save Face
+      </button>
+      <a href="/student/dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById('enrollVideo');
+    const canvas = document.getElementById('enrollCanvas');
+    const statusAlert = document.getElementById('statusAlert');
+    const captureBtn = document.getElementById('captureBtn');
+    const studentSelect = document.getElementById('studentSelect');
+
+    let modelsLoaded = false;
+
+    // 1. Load face-api AI models from CDN
+    async function loadModels() {
+      try {
+        statusAlert.className = 'alert alert-info text-center py-2 mb-3';
+        statusAlert.innerText = '⌛ Loading face recognition models...';
+
+        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+        await Promise.all([
+          faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+          faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+          faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+        ]);
+
+        modelsLoaded = true;
+        await startCamera();
+      } catch (err) {
+        console.error('Failed to load face-api models:', err);
+        statusAlert.className = 'alert alert-danger text-center py-2 mb-3';
+        statusAlert.innerText = '❌ Failed to load AI recognition models. Check network connection.';
+      }
+    }
+
+    // 2. Initialize Camera Stream with detailed error handling
+    async function startCamera() {
+      try {
+        statusAlert.innerText = 'Requesting camera access...';
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            facingMode: 'user'
+          },
+          audio: false
+        });
+
+        video.srcObject = stream;
+        
+        video.onloadedmetadata = () => {
+          video.play();
+          statusAlert.className = 'alert alert-success text-center py-2 mb-3';
+          statusAlert.innerText = '✅ Camera Ready. Select student, align face, and capture.';
+          captureBtn.disabled = false;
+        };
+
+      } catch (err) {
+        console.error('Camera Access Error:', err);
+        statusAlert.className = 'alert alert-danger text-center py-2 mb-3';
+        
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          statusAlert.innerText = '❌ Camera access blocked. Allow camera permissions in browser address bar.';
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+          statusAlert.innerText = '❌ No webcam found. Connect a camera and reload.';
+        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+          statusAlert.innerText = '❌ Camera is in use by another tab (e.g., Kiosk mode). Close other tabs.';
+        } else {
+          statusAlert.innerText = '❌ Failed to access camera. Ensure localhost server is active.';
+        }
+      }
+    }
+
+    // 3. Fetch and load seeded students into the dropdown
+    async function loadStudentDropdown() {
+      if (!studentSelect) return;
+
+      try {
+        const res = await fetch('/api/attendance/students');
+        
+        if (!res.ok) {
+          throw new Error(`HTTP Error: ${res.status}`);
+        }
+
+        const result = await res.json();
+
+        if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+          studentSelect.innerHTML = '<option value="">-- Choose Student Profile --</option>';
+
+          result.data.forEach(student => {
+            const option = document.createElement('option');
+            option.value = student._id;
+            const status = student.isFaceRegistered ? ' (Enrolled ✓)' : ' (Not Enrolled)';
+            option.innerText = `${student.name} - Room: ${student.roomNumber || 'N/A'}${status}`;
+            studentSelect.appendChild(option);
+          });
+        } else {
+          studentSelect.innerHTML = '<option value="">No resident students found in DB</option>';
+        }
+      } catch (err) {
+        console.error('🔴 Failed to load student dropdown:', err);
+        studentSelect.innerHTML = '<option value="">Error loading student list</option>';
+      }
+    }
+
+    // 4. Capture Canvas Snapshot, Extract 128-float Descriptor & Post
+    async function captureAndEnroll() {
+      const selectedUserId = studentSelect.value;
+
+      if (!selectedUserId) {
+        alert('Please select a student from the dropdown first!');
+        return;
+      }
+
+      if (!modelsLoaded) {
+        alert('Face recognition models are still loading. Please wait a moment.');
+        return;
+      }
+
+      captureBtn.disabled = true;
+      statusAlert.className = 'alert alert-warning text-center py-2 mb-3';
+      statusAlert.innerText = '📸 Capturing image snapshot...';
+
+      // --- STEP A: Sync Video Frame to Canvas & Generate Base64 ---
+      const ctx = canvas.getContext('2d');
+      const width = video.videoWidth || 640;
+      const height = video.videoHeight || 480;
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(video, 0, 0, width, height);
+
+      const imageBase64 = canvas.toDataURL('image/jpeg', 0.85);
+
+      if (!imageBase64 || imageBase64 === 'data:,') {
+        statusAlert.className = 'alert alert-danger text-center py-2 mb-3';
+        statusAlert.innerText = '❌ Snapshot failed. Make sure webcam stream is active.';
+        captureBtn.disabled = false;
+        return;
+      }
+
+      // --- STEP B: Extract Real 128-float Descriptor Vector ---
+      statusAlert.innerText = '🔍 Scanning facial features...';
+
+      const detection = await faceapi.detectSingleFace(video)
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+      if (!detection) {
+        statusAlert.className = 'alert alert-danger text-center py-2 mb-3';
+        statusAlert.innerText = '❌ No face detected! Center your face and try again.';
+        captureBtn.disabled = false;
+        return;
+      }
+
+      // Convert Float32Array to standard array for JSON transport
+      const realDescriptor = Array.from(detection.descriptor);
+
+      statusAlert.innerText = '💾 Saving biometric data to database...';
+
+      try {
+        const response = await fetch('/api/attendance/enroll-face', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId: selectedUserId,
+            faceDescriptor: realDescriptor,
+            profileImage: imageBase64
+          })
+        });
+
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            statusAlert.className = 'alert alert-success text-center py-2 mb-3';
+            statusAlert.innerText = `🎉 ${data.message || 'Face enrolled successfully!'}`;
+            
+            // Refresh student dropdown to immediately mark status (Enrolled ✓)
+            await loadStudentDropdown();
+
+            // Reset selection for next student instead of immediate redirect
+            studentSelect.value = '';
+            captureBtn.disabled = false;
+
+          } else {
+            statusAlert.className = 'alert alert-danger text-center py-2 mb-3';
+            statusAlert.innerText = data.message || 'Failed to save biometric data.';
+            captureBtn.disabled = false;
+          }
+        } else {
+          statusAlert.className = 'alert alert-danger text-center py-2 mb-3';
+          statusAlert.innerText = 'Server error (404/500). Invalid route response.';
+          captureBtn.disabled = false;
+        }
+
+      } catch (err) {
+        console.error('Enrollment fetch error:', err);
+        statusAlert.className = 'alert alert-danger text-center py-2 mb-3';
+        statusAlert.innerText = 'Server error during save. Check express logs.';
+        captureBtn.disabled = false;
+      }
+    }
+
+    // Run setup on DOM readiness
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        loadStudentDropdown();
+        loadModels();
+      });
+    } else {
+      loadStudentDropdown();
+      loadModels();
+    }
+  </script>
+</body>
+</html>

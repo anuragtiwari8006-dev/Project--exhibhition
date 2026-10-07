@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -8,175 +9,225 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Fonts -->
+  <!-- Socket.IO Client Script -->
+  <script src="/socket.io/socket.io.js"></script>
+  
+  <!-- Modern Clean Font Stack -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
-  <link href="https://db.onlinewebfonts.com/c/2bf40ab72ea4897a3fd9b6e48b233a19?family=Garamond" rel="stylesheet" type="text/css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
     body {
-      background-color: #010101;
-      color: #ffffff;
-      font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #030712;
+      color: #f9fafb;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
-    .font-garamond {
-      font-family: 'Garamond', 'Times New Roman', serif;
+    .glass-nav {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .nature-glass {
-      background: rgba(10, 10, 10, 0.55);
+    .glass-card {
+      background: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
 
-    .nature-input {
+    .glass-row {
       background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.2s ease;
+    }
+
+    .glass-row:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .form-input {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       color: #ffffff;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
     
-    .nature-input:focus {
-      background: rgba(255, 255, 255, 0.07);
-      border-color: rgba(255, 255, 255, 0.4);
-      outline: none;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-    }
-
-    .nature-table-row {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(10px);
-      transition: all 0.25s ease;
-    }
-
-    .nature-table-row:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.18);
-    }
-
-    .liquid-glass {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      border: none;
-      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
-      position: relative;
-      overflow: hidden;
-      transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
-    }
-
-    .liquid-glass::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      padding: 1.4px;
-      background: linear-gradient(180deg,
-        rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%,
-        rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
-        rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-    }
-
-    .liquid-glass:hover {
+    .form-input:focus {
       background: rgba(255, 255, 255, 0.08);
-      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.25);
+      border-color: #3b82f6;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
     }
 
-    .liquid-glass:active {
-      transform: scale(0.98);
+    .primary-btn {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transition: all 0.2s ease;
+    }
+
+    .primary-btn:hover {
+      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    }
+
+    .secondary-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.2s ease;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
     }
   </style>
 </head>
-<body class="min-h-full pb-16 relative overflow-x-hidden">
+<body class="min-h-full pb-16 relative overflow-x-hidden selection:bg-blue-500 selection:text-white">
+
+  <!-- Inject User ID for Socket Listener Matching -->
+  <script>
+    window.currentUserId = "<%= (typeof user !== 'undefined' && user._id) ? user._id : '' %>";
+  </script>
 
   <!-- Background Video -->
   <video autoPlay muted loop playsInline class="fixed inset-0 w-full h-full object-cover object-center -z-20 pointer-events-none">
     <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260619_191346_9d19d66e-86a4-47f7-8dc6-712c1788c3b2.mp4" type="video/mp4">
   </video>
 
-  <div class="fixed inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/80 pointer-events-none -z-10"></div>
+  <div class="fixed inset-0 bg-slate-950/75 backdrop-brightness-90 pointer-events-none -z-10"></div>
 
   <!-- Header Navigation -->
-  <header class="sticky top-0 z-50 nature-glass border-b border-white/10 px-6 py-5">
+  <header class="sticky top-0 z-50 glass-nav px-6 py-4">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+          <i data-lucide="shield" class="w-5 h-5"></i>
+        </div>
         <div>
-          <span class="text-[10px] uppercase tracking-[0.3em] text-white/50 block">Synthetic Nature</span>
-          <h1 class="font-garamond text-2xl text-white tracking-tight">
+          <span class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold block">Synthetic Nature</span>
+          <h1 class="text-lg font-bold text-white tracking-tight">
             <%= (typeof user !== 'undefined' && user.name) ? user.name : 'Student Portal' %>
           </h1>
         </div>
       </div>
 
-      <div class="flex items-center gap-6">
-        <% if (typeof user !== 'undefined' && user.roomNumber) { %>
-          <span class="text-xs uppercase tracking-[0.2em] font-light text-white/70 hidden sm:inline">
-            Room <span class="text-white font-normal"><%= user.roomNumber %></span>
-          </span>
+      <div class="flex items-center gap-4">
+        <% if (typeof user !== 'undefined' && (user.roomNumber || user.roomNo)) { %>
+          <div class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+            <i data-lucide="door-closed" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span>Room <strong class="text-white"><%= user.roomNumber || user.roomNo %></strong></span>
+          </div>
         <% } %>
-        <a href="/logout" class="liquid-glass px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.2em] font-light text-white/90 flex items-center gap-2">
-          <i data-lucide="log-out" class="w-3.5 h-3.5 text-white/70"></i>
+        <a href="/logout" class="secondary-btn px-4 py-2 rounded-xl text-xs font-medium text-slate-200 flex items-center gap-2">
+          <i data-lucide="log-out" class="w-3.5 h-3.5 text-slate-400"></i>
           <span>Sign Out</span>
         </a>
       </div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-6 pt-10 space-y-10">
+  <main class="max-w-7xl mx-auto px-6 pt-8 space-y-8">
     
-    <!-- Fixed Navigation Button for Faculty Directory -->
-    <div class="flex justify-end">
-      <a href="/student/faculty-directory" class="liquid-glass px-6 py-3 rounded-full text-xs uppercase tracking-[0.2em] font-light text-white flex items-center gap-2">
-        <i data-lucide="search" class="w-4 h-4 text-white/70"></i>
+    <!-- Hero / Top Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">
+          Resident HQ
+        </h2>
+        <p class="text-sm text-slate-400 mt-0.5">
+          Manage tickets, gate passes, and view live attendance status
+        </p>
+      </div>
+
+      <!-- Faculty Directory Link -->
+      <a href="/student/faculty-directory" class="secondary-btn px-5 py-2.5 rounded-xl text-xs font-semibold text-white flex items-center justify-center gap-2 self-start md:self-auto shadow-sm">
+        <i data-lucide="search" class="w-4 h-4 text-blue-400"></i>
         <span>Find Faculty Cabins & Free Slots</span>
       </a>
     </div>
-    
-    <div class="text-center py-4">
-      <h2 class="font-garamond text-4xl sm:text-6xl text-white tracking-tight">
-        RESIDENT PORTAL
-      </h2>
-      <p class="text-xs uppercase tracking-[0.25em] text-white/60 font-light mt-2">
-        Manage tickets & visitor passes
-      </p>
-    </div>
+
+    <!-- Real-Time Live Attendance Section -->
+    <section class="glass-card rounded-2xl p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b border-white/10 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+            <i data-lucide="scan-face" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Live Biometric Attendance (CS301)</h3>
+            <p class="text-xs text-slate-400">Synchronized real-time class verification status</p>
+          </div>
+        </div>
+        <div class="self-start sm:self-auto px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+          Overall Attendance: <strong class="text-white font-bold"><%= typeof overallPercentage !== 'undefined' ? overallPercentage : '100' %>%</strong>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 rounded-xl glass-row flex items-center justify-between">
+          <div class="space-y-1">
+            <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block">Today's Status</span>
+            <span class="text-base font-bold text-white block" id="attendanceStatusText">
+              <%= (typeof todayAttendance !== 'undefined' && todayAttendance) ? 'Marked Present' : 'Not Marked Today' %>
+            </span>
+          </div>
+          <div id="statusBadgeContainer">
+            <% if (typeof todayAttendance !== 'undefined' && todayAttendance) { %>
+              <span class="px-3 py-1 rounded-full text-[11px] font-semibold tracking-wider border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+                PRESENT
+              </span>
+            <% } else { %>
+              <span class="px-3 py-1 rounded-full text-[11px] font-semibold tracking-wider border border-amber-500/30 bg-amber-500/10 text-amber-400">
+                PENDING
+              </span>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl glass-row flex items-center justify-between">
+          <div class="space-y-1">
+            <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block">Verification Method</span>
+            <span class="text-base font-bold text-white block" id="verificationMethodText">
+              <%= (typeof todayAttendance !== 'undefined' && todayAttendance) ? todayAttendance.verificationMethod : 'Kiosk Scanner' %>
+            </span>
+          </div>
+          <span class="text-xs font-medium text-slate-400" id="markedTimeText">
+            <%= (typeof todayAttendance !== 'undefined' && todayAttendance) ? new Date(todayAttendance.markedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Awaiting Scan' %>
+          </span>
+        </div>
+      </div>
+    </section>
 
     <!-- Announcements -->
-    <section class="nature-glass rounded-3xl p-6 md:p-8">
-      <div class="text-xs uppercase tracking-[0.25em] font-light text-white/60 mb-4 flex items-center gap-2">
-        <i data-lucide="bell" class="w-3.5 h-3.5 text-white/80"></i>
-        Announcements
+    <section class="glass-card rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4 border-b border-white/10 pb-3">
+        <i data-lucide="bell" class="w-4 h-4 text-blue-400"></i>
+        <h3 class="text-sm font-semibold uppercase tracking-wider text-white">Campus Announcements</h3>
       </div>
       
       <div class="space-y-3">
         <% if (typeof announcements !== 'undefined' && announcements && announcements.length > 0) { %>
           <% announcements.forEach(notice => { %>
-            <div class="p-4 rounded-2xl nature-table-row">
-              <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-                <h3 class="font-garamond text-lg text-white"><%= notice.title || 'Notice' %></h3>
-                <span class="text-[10px] uppercase tracking-[0.15em] text-white/50">
+            <div class="p-4 rounded-xl glass-row space-y-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h4 class="font-semibold text-white text-sm"><%= notice.title || 'Notice' %></h4>
+                <span class="text-[11px] font-medium text-slate-400">
                   <%= notice.postedBy ? notice.postedBy.name : 'Warden' %> &bull; <%= notice.createdAt ? new Date(notice.createdAt).toLocaleDateString() : 'Recent' %>
                 </span>
               </div>
-              <p class="text-xs text-white/70 font-light leading-relaxed"><%= notice.content || notice.message %></p>
+              <p class="text-xs text-slate-300 leading-relaxed font-normal"><%= notice.content || notice.message %></p>
             </div>
           <% }) %>
         <% } else { %>
-          <p class="text-xs text-white/40 italic font-light">No announcements recorded.</p>
+          <div class="text-center py-6 text-xs text-slate-400 font-medium">No announcements recorded.</div>
         <% } %>
       </div>
     </section>
@@ -184,49 +235,57 @@
     <!-- Maintenance & Visitor Forms -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       
-      <div class="nature-glass rounded-3xl p-6 md:p-8">
-        <h3 class="font-garamond text-2xl text-white mb-6 flex items-center gap-2.5">
-          <i data-lucide="wrench" class="w-5 h-5 text-white/70"></i>
-          Log Maintenance Ticket
-        </h3>
+      <!-- Log Ticket -->
+      <div class="glass-card rounded-2xl p-6">
+        <div class="flex items-center gap-2.5 mb-5 border-b border-white/10 pb-3">
+          <i data-lucide="wrench" class="w-4 h-4 text-blue-400"></i>
+          <h3 class="text-base font-bold text-white">Log Maintenance Ticket</h3>
+        </div>
         <form action="/student/issues" method="POST" class="space-y-4">
-          <div>
-            <label class="block text-[11px] uppercase tracking-[0.2em] font-light text-white/70 mb-2">Issue Category</label>
-            <select name="category" required class="nature-input w-full rounded-2xl px-4 py-3 text-xs font-light">
-              <option value="Plumbing" class="bg-black text-white">Plumbing</option>
-              <option value="Electrical" class="bg-black text-white">Electrical</option>
-              <option value="Carpentry" class="bg-black text-white">Carpentry</option>
-              <option value="Cleaning" class="bg-black text-white">Cleaning</option>
-              <option value="Other" class="bg-black text-white">Other</option>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Issue Category</label>
+            <select name="category" required class="form-input w-full rounded-xl px-4 py-3 text-xs font-medium cursor-pointer">
+              <option value="Plumbing" class="bg-slate-900 text-white">Plumbing</option>
+              <option value="Electrical" class="bg-slate-900 text-white">Electrical</option>
+              <option value="Carpentry" class="bg-slate-900 text-white">Carpentry</option>
+              <option value="Cleaning" class="bg-slate-900 text-white">Cleaning</option>
+              <option value="Other" class="bg-slate-900 text-white">Other</option>
             </select>
           </div>
-          <div>
-            <label class="block text-[11px] uppercase tracking-[0.2em] font-light text-white/70 mb-2">Description</label>
-            <textarea name="description" rows="3" placeholder="Describe the issue..." required class="nature-input w-full rounded-2xl p-4 text-xs font-light placeholder:text-white/30 resize-none"></textarea>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Description</label>
+            <textarea name="description" rows="3" placeholder="Describe the issue in detail..." required class="form-input w-full rounded-xl p-3.5 text-xs placeholder:text-slate-500 resize-none font-normal"></textarea>
           </div>
-          <button type="submit" class="liquid-glass w-full py-3.5 rounded-full text-white uppercase tracking-[0.2em] text-xs font-light flex items-center justify-center gap-2">
-            <i data-lucide="send" class="w-3.5 h-3.5 text-white/70"></i>
+          <button type="submit" class="primary-btn w-full py-3 rounded-xl text-white font-medium text-xs flex items-center justify-center gap-2 shadow-md">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
             <span>Submit Request</span>
           </button>
         </form>
       </div>
 
-      <div class="nature-glass rounded-3xl p-6 md:p-8">
-        <h3 class="font-garamond text-2xl text-white mb-6 flex items-center gap-2.5">
-          <i data-lucide="ticket" class="w-5 h-5 text-white/70"></i>
-          Pre-Register Visitor
-        </h3>
+      <!-- Pre-Register Visitor -->
+      <div class="glass-card rounded-2xl p-6">
+        <div class="flex items-center gap-2.5 mb-5 border-b border-white/10 pb-3">
+          <i data-lucide="ticket" class="w-4 h-4 text-blue-400"></i>
+          <h3 class="text-base font-bold text-white">Pre-Register Visitor</h3>
+        </div>
         <form action="/student/visitors" method="POST" class="space-y-4">
-          <div>
-            <label class="block text-[11px] uppercase tracking-[0.2em] font-light text-white/70 mb-2">Visitor Name</label>
-            <input type="text" name="visitorName" placeholder="Full Name" required class="nature-input w-full rounded-2xl px-4 py-3 text-xs font-light placeholder:text-white/30" />
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Visitor Name</label>
+            <input type="text" name="visitorName" placeholder="Full Name" required class="form-input w-full rounded-xl px-4 py-3 text-xs placeholder:text-slate-500 font-normal" />
           </div>
-          <div>
-            <label class="block text-[11px] uppercase tracking-[0.2em] font-light text-white/70 mb-2">Visitor Phone</label>
-            <input type="text" name="visitorPhone" placeholder="Phone Number" required class="nature-input w-full rounded-2xl px-4 py-3 text-xs font-light placeholder:text-white/30" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Visitor Phone</label>
+              <input type="text" name="visitorPhone" placeholder="Phone Number" required class="form-input w-full rounded-xl px-4 py-3 text-xs placeholder:text-slate-500 font-normal" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Visit Date</label>
+              <input type="date" name="visitDate" required class="form-input w-full rounded-xl px-4 py-3 text-xs font-normal" />
+            </div>
           </div>
-          <button type="submit" class="liquid-glass w-full py-3.5 rounded-full text-white uppercase tracking-[0.2em] text-xs font-light flex items-center justify-center gap-2">
-            <i data-lucide="key" class="w-3.5 h-3.5 text-white/70"></i>
+          <button type="submit" class="primary-btn w-full py-3 rounded-xl text-white font-medium text-xs flex items-center justify-center gap-2 shadow-md">
+            <i data-lucide="key" class="w-3.5 h-3.5"></i>
             <span>Generate Gate Pass</span>
           </button>
         </form>
@@ -237,50 +296,97 @@
     <!-- Active Tables -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       
-      <div class="nature-glass rounded-3xl p-6 md:p-8">
-        <h3 class="font-garamond text-xl text-white mb-5 flex items-center gap-2">
-          <i data-lucide="clock" class="w-4 h-4 text-white/70"></i>
-          Active Maintenance Tickets
-        </h3>
-        <div class="space-y-2.5">
+      <!-- Maintenance Tickets List -->
+      <div class="glass-card rounded-2xl p-6">
+        <div class="flex items-center gap-2 mb-4 border-b border-white/10 pb-3">
+          <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
+          <h3 class="text-sm font-semibold uppercase tracking-wider text-white">Active Maintenance Tickets</h3>
+        </div>
+        <div class="space-y-3">
           <% if (typeof issues !== 'undefined' && issues && issues.length > 0) { %>
             <% issues.forEach(issue => { %>
-              <div class="flex items-center justify-between p-4 rounded-2xl nature-table-row text-xs">
-                <div>
-                  <span class="font-medium text-white block"><%= issue.category %></span>
-                  <span class="text-white/60 font-light text-[11px]"><%= issue.description %></span>
+              <%
+                const createdTime = new Date(issue.createdAt);
+                const endTime = issue.status === 'Resolved' ? new Date(issue.updatedAt) : new Date();
+                const diffMins = Math.floor((endTime - createdTime) / (1000 * 60));
+                const hrs = Math.floor(diffMins / 60);
+                const mins = diffMins % 60;
+                let timeText;
+                if (hrs >= 24) {
+                  const days = Math.floor(hrs / 24);
+                  const remainingHrs = hrs % 24;
+                  timeText = remainingHrs > 0 ? `${days}d ${remainingHrs}h` : `${days}d`;
+                } else if (hrs > 0) {
+                  timeText = `${hrs}h ${mins}m`;
+                } else {
+                  timeText = `${mins}m`;
+                }
+              %>
+              <div class="p-3.5 rounded-xl glass-row flex items-center justify-between gap-3 text-xs">
+                <div class="space-y-1">
+                  <span class="font-bold text-white block"><%= issue.category %></span>
+                  <p class="text-slate-300 font-normal text-[11px] line-clamp-1"><%= issue.description %></p>
                 </div>
-                <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] border border-white/20 bg-white/5 text-white/80">
-                  <%= issue.status %>
-                </span>
+                <div class="flex flex-col items-end gap-1.5 shrink-0">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase border border-white/10 bg-white/5 text-slate-300">
+                    <%= issue.status %>
+                  </span>
+                  <span class="text-[10px] text-slate-400 font-medium">
+                    <% if (issue.urgency === 'High') { %>
+                      🚨 High Priority
+                    <% } else if (issue.urgency === 'Medium') { %>
+                      ⚠️ Medium
+                    <% } else { %>
+                      Low
+                    <% } %>
+                    &bull; <%= timeText %>
+                  </span>
+                </div>
               </div>
             <% }) %>
           <% } else { %>
-            <p class="text-xs text-white/40 italic font-light">No tickets logged.</p>
+            <div class="text-center py-6 text-xs text-slate-400 font-medium">No tickets logged.</div>
           <% } %>
         </div>
       </div>
 
-      <div class="nature-glass rounded-3xl p-6 md:p-8">
-        <h3 class="font-garamond text-xl text-white mb-5 flex items-center gap-2">
-          <i data-lucide="shield-check" class="w-4 h-4 text-white/70"></i>
-          Gate Passes Issued
-        </h3>
-        <div class="space-y-2.5">
+      <!-- Gate Passes List -->
+      <div class="glass-card rounded-2xl p-6">
+        <div class="flex items-center gap-2 mb-4 border-b border-white/10 pb-3">
+          <i data-lucide="shield-check" class="w-4 h-4 text-blue-400"></i>
+          <h3 class="text-sm font-semibold uppercase tracking-wider text-white">Gate Passes Issued</h3>
+        </div>
+        <div class="space-y-3">
           <% if (typeof visitors !== 'undefined' && visitors && visitors.length > 0) { %>
             <% visitors.forEach(pass => { %>
-              <div class="flex items-center justify-between p-4 rounded-2xl nature-table-row text-xs">
-                <div>
-                  <span class="font-medium text-white block"><%= pass.visitorName || pass.name %></span>
-                  <code class="text-[10px] font-mono tracking-widest text-white/50"><%= pass.passcode || pass.code %></code>
+              <div class="p-3.5 rounded-xl glass-row flex items-center justify-between gap-3 text-xs">
+                <div class="space-y-1">
+                  <span class="font-bold text-white block"><%= pass.visitorName %></span>
+                  <div class="flex items-center gap-2">
+                    <code class="text-[10px] font-mono tracking-wider bg-black/40 px-2 py-0.5 rounded text-blue-300"><%= pass.passcode %></code>
+                    <span class="text-[10px] text-slate-400">Date: <%= pass.visitDate ? new Date(pass.visitDate).toLocaleDateString() : 'N/A' %></span>
+                  </div>
                 </div>
-                <span class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] border border-white/20 bg-white/5 text-white/80">
-                  <%= pass.status %>
-                </span>
+
+                <div class="flex items-center gap-3">
+                  <% if (pass.qrCode) { %>
+                    <img src="<%= pass.qrCode %>" alt="Gate Pass QR Code" class="w-12 h-12 bg-white p-1 rounded-lg shrink-0">
+                  <% } %>
+                  
+                  <% if (pass.status === 'APPROVED' || pass.status === 'Approved') { %>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">APPROVED</span>
+                  <% } else if (pass.status === 'CheckedIn') { %>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border border-blue-500/30 bg-blue-500/10 text-blue-400">CHECKED IN</span>
+                  <% } else if (pass.status === 'EXPIRED') { %>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border border-slate-500/30 bg-slate-500/10 text-slate-400">EXPIRED</span>
+                  <% } else { %>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border border-amber-500/30 bg-amber-500/10 text-amber-400">PENDING</span>
+                  <% } %>
+                </div>
               </div>
             <% }) %>
           <% } else { %>
-            <p class="text-xs text-white/40 italic font-light">No active passes found.</p>
+            <div class="text-center py-6 text-xs text-slate-400 font-medium">No active passes found.</div>
           <% } %>
         </div>
       </div>
@@ -289,6 +395,30 @@
 
   </main>
 
-  <script>lucide.createIcons();</script>
+  <script>
+    lucide.createIcons();
+
+    // Socket.IO Listener for Live Student Attendance Update
+    const socket = io();
+    socket.on('attendance_updated', (data) => {
+      if (window.currentUserId && String(window.currentUserId) === String(data.studentId)) {
+        const badgeContainer = document.getElementById('statusBadgeContainer');
+        const statusText = document.getElementById('attendanceStatusText');
+        const methodText = document.getElementById('verificationMethodText');
+        const timeText = document.getElementById('markedTimeText');
+
+        if (badgeContainer) {
+          badgeContainer.innerHTML = `
+            <span class="px-3 py-1 rounded-full text-[11px] font-semibold tracking-wider border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 animate-pulse">
+              PRESENT
+            </span>
+          `;
+        }
+        if (statusText) statusText.innerText = 'Marked Present';
+        if (methodText) methodText.innerText = data.verificationMethod || 'FACE_RECOGNITION';
+        if (timeText) timeText.innerText = new Date(data.markedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+    });
+  </script>
 </body>
 </html>

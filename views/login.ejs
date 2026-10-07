@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -8,162 +9,143 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Fonts: Geist & Garamond -->
+  <!-- Modern Clean Font Stack -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
-  <link href="https://db.onlinewebfonts.com/c/2bf40ab72ea4897a3fd9b6e48b233a19?family=Garamond" rel="stylesheet" type="text/css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
     body {
-      background-color: #010101;
-      color: #ffffff;
-      font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #030712;
+      color: #f9fafb;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
-    .font-garamond {
-      font-family: 'Garamond', 'Times New Roman', serif;
+    .glass-card {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
     }
 
-    .nature-glass {
-      background: rgba(10, 10, 10, 0.55);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-
-    .nature-input {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(8px);
+    .form-input {
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.12);
       color: #ffffff;
-      transition: all 0.3s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
-    .nature-input:focus {
-      background: rgba(255, 255, 255, 0.07);
-      border-color: rgba(255, 255, 255, 0.4);
-      outline: none;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-    }
-
-    .liquid-glass {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      border: none;
-      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
-      position: relative;
-      overflow: hidden;
-      transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
-    }
-
-    .liquid-glass::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      padding: 1.4px;
-      background: linear-gradient(180deg,
-        rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%,
-        rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
-        rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-    }
-
-    .liquid-glass:hover {
+    .form-input:focus {
       background: rgba(255, 255, 255, 0.08);
-      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.25);
+      border-color: #3b82f6;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
     }
 
-    .liquid-glass:active {
-      transform: scale(0.98);
+    .primary-btn {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .primary-btn:hover {
+      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .primary-btn:active {
+      transform: translateY(0);
     }
   </style>
 </head>
-<body class="min-h-full flex flex-col justify-between relative overflow-x-hidden">
+<body class="min-h-full flex flex-col justify-between relative overflow-x-hidden selection:bg-blue-500 selection:text-white">
 
   <!-- Background Video -->
   <video autoPlay muted loop playsInline class="fixed inset-0 w-full h-full object-cover object-center -z-20 pointer-events-none">
     <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260619_191346_9d19d66e-86a4-47f7-8dc6-712c1788c3b2.mp4" type="video/mp4">
   </video>
 
-  <!-- Ambient Overlay -->
-  <div class="fixed inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none -z-10"></div>
+  <!-- Ambient Dark Overlay -->
+  <div class="fixed inset-0 bg-slate-950/70 backdrop-brightness-90 pointer-events-none -z-10"></div>
 
   <!-- Header -->
   <header class="relative z-20 w-full px-6 py-6 text-center">
-    <span class="text-white uppercase font-light tracking-[0.3em] text-xs md:text-sm">
-      Synthetic Nature
-    </span>
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+      <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+      <span class="text-white/80 uppercase font-semibold tracking-widest text-[11px]">
+        Synthetic Nature Realm
+      </span>
+    </div>
   </header>
 
   <!-- Login Card -->
   <main class="relative z-10 max-w-md w-full mx-auto px-5 my-auto">
-    <div class="nature-glass rounded-3xl p-8 md:p-10 text-center space-y-6">
+    <div class="glass-card rounded-3xl p-8 md:p-10 space-y-6">
       
-      <div>
-        <h1 class="font-garamond text-4xl md:text-5xl text-white tracking-tight leading-none mb-2">
-          ACCESS REALM
+      <div class="text-center space-y-2">
+        <h1 class="text-3xl md:text-4xl font-bold text-white tracking-tight">
+          Welcome Back
         </h1>
-        <p class="text-xs text-white/70 font-light tracking-[0.15em] uppercase">
-          Sign in to your campus dashboard
+        <p class="text-sm text-slate-400 font-normal">
+          Sign in to access your campus resident portal
         </p>
       </div>
 
       <!-- Error Message Banner -->
       <% if (typeof error !== 'undefined' && error) { %>
-        <div class="p-3 rounded-xl bg-red-950/60 border border-red-500/40 text-red-200 text-xs text-center font-light">
-          <%= error %>
+        <div class="p-3.5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs text-center font-medium flex items-center justify-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-red-400"></i>
+          <span><%= error %></span>
         </div>
       <% } %>
 
       <!-- Authentication Form -->
       <form action="/login" method="POST" class="space-y-5 text-left">
-        <div>
-          <label class="block text-[11px] uppercase tracking-[0.2em] font-light text-white/80 mb-1.5">
+        <div class="space-y-2">
+          <label class="block text-xs uppercase tracking-wider font-semibold text-slate-300">
             Email / Registration No
           </label>
-          <input 
-            type="text" 
-            name="email" 
-            required 
-            placeholder="student@hostel.com" 
-            class="nature-input w-full rounded-2xl px-4 py-3.5 text-xs placeholder:text-white/30 font-light"
-          >
+          <div class="relative">
+            <input 
+              type="text" 
+              name="email" 
+              required 
+              placeholder="student@hostel.com" 
+              class="form-input w-full rounded-xl px-4 py-3.5 text-sm placeholder:text-slate-500 font-normal"
+            >
+          </div>
         </div>
 
-        <div>
-          <label class="block text-[11px] uppercase tracking-[0.2em] font-light text-white/80 mb-1.5">
+        <div class="space-y-2">
+          <label class="block text-xs uppercase tracking-wider font-semibold text-slate-300">
             Password
           </label>
-          <input 
-            type="password" 
-            name="password" 
-            required 
-            placeholder="••••••••" 
-            class="nature-input w-full rounded-2xl px-4 py-3.5 text-xs placeholder:text-white/30 font-light"
-          >
+          <div class="relative">
+            <input 
+              type="password" 
+              name="password" 
+              required 
+              placeholder="••••••••" 
+              class="form-input w-full rounded-xl px-4 py-3.5 text-sm placeholder:text-slate-500 font-normal"
+            >
+          </div>
         </div>
 
-        <button type="submit" class="liquid-glass w-full py-4 rounded-full text-white uppercase tracking-[0.2em] text-xs font-light mt-6 flex items-center justify-center gap-2">
+        <button type="submit" class="primary-btn w-full py-3.5 rounded-xl text-white font-medium text-sm mt-6 flex items-center justify-center gap-2 shadow-lg">
           <span>Enter Portal</span>
-          <i data-lucide="arrow-right" class="w-4 h-4 text-white/70"></i>
+          <i data-lucide="arrow-right" class="w-4 h-4 text-white"></i>
         </button>
       </form>
 
     </div>
   </main>
 
-  <footer class="relative z-10 py-6 text-center text-[10px] uppercase tracking-[0.2em] text-white/40">
+  <footer class="relative z-10 py-6 text-center text-xs tracking-wide text-slate-500 font-medium">
     Organic Visions &bull; Synthetic Nature Portal
   </footer>
 

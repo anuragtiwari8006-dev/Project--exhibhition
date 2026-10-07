@@ -1,146 +1,426 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Warden Administration Dashboard</title>
+  <title>Synthetic Nature — Warden Administration Portal</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Modern Clean Font Stack -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
   <style>
-    body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; }
-    .header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background-color: #007bff; color: white; }
-    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
-    .badge.pending { background: #fff3cd; color: #856404; }
-    .btn-approve { background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-    .btn-submit { background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-    .btn-logout { background: #dc3545; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; }
-    input[type="text"], textarea { width: 100%; padding: 8px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    body {
+      background-color: #030712;
+      color: #f9fafb;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .glass-nav {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .glass-row {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.2s ease;
+    }
+
+    .glass-row:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .form-input {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      transition: all 0.2s ease;
+    }
+    
+    .form-input:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: #3b82f6;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transition: all 0.2s ease;
+    }
+
+    .primary-btn:hover {
+      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    }
+
+    .approve-btn {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      transition: all 0.2s ease;
+    }
+
+    .approve-btn:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .secondary-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.2s ease;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Custom Scrollbar for Horizontal Tables */
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
   </style>
 </head>
-<body>
+<body class="min-h-full pb-16 relative overflow-x-hidden selection:bg-blue-500 selection:text-white">
 
-  <div class="header">
-    <div>
-      <h2>👮 Warden Portal</h2>
-      <p>Welcome, <strong><%= user.name %></strong></p>
+  <!-- Background Video -->
+  <video autoPlay muted loop playsInline class="fixed inset-0 w-full h-full object-cover object-center -z-20 pointer-events-none">
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260619_191346_9d19d66e-86a4-47f7-8dc6-712c1788c3b2.mp4" type="video/mp4">
+  </video>
+
+  <!-- Dark Ambient Overlay -->
+  <div class="fixed inset-0 bg-slate-950/75 backdrop-brightness-90 pointer-events-none -z-10"></div>
+
+  <!-- Header Navigation -->
+  <header class="sticky top-0 z-50 glass-nav px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold block">Synthetic Nature</span>
+          <h1 class="text-lg font-bold text-white tracking-tight">
+            Warden Portal
+          </h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+          <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-400"></i>
+          <span>Welcome, <strong class="text-white"><%= user.name %></strong></span>
+        </div>
+        <a href="/logout" class="secondary-btn px-4 py-2 rounded-xl text-xs font-medium text-slate-200 flex items-center gap-2">
+          <i data-lucide="log-out" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>Sign Out</span>
+        </a>
+      </div>
     </div>
-    <a href="/logout" class="btn-logout">Logout</a>
-  </div>
+  </header>
 
-  <!-- Post New Announcement Form -->
-  <div class="card">
-    <h3>📢 Post Hostel Announcement</h3>
-    <form action="/warden/announcements" method="POST">
-      <label for="title">Title:</label>
-      <input type="text" id="title" name="title" placeholder="e.g. Water Maintenance Notice" required />
+  <main class="max-w-7xl mx-auto px-6 pt-8 space-y-8">
+    
+    <!-- Hero Title -->
+    <div>
+      <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">
+        Administration HQ
+      </h2>
+      <p class="text-sm text-slate-400 mt-0.5">
+        Broadcast notices, approve visitor gate passes, and resolve maintenance issues
+      </p>
+    </div>
+
+    <!-- Post New Announcement Form -->
+    <section class="glass-card rounded-2xl p-6">
+      <div class="flex items-center gap-2.5 mb-5 border-b border-white/10 pb-3">
+        <i data-lucide="megaphone" class="w-4 h-4 text-blue-400"></i>
+        <h3 class="text-base font-bold text-white">Post Hostel Announcement</h3>
+      </div>
       
-      <label for="content">Announcement Content:</label>
-      <textarea id="content" name="content" rows="3" placeholder="Write notice details..." required></textarea>
-      
-      <button type="submit" class="btn-submit">Publish Announcement</button>
-    </form>
-  </div>
+      <form action="/warden/announcements" method="POST" class="space-y-4">
+        <div class="space-y-1.5">
+          <label for="title" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Title</label>
+          <input 
+            type="text" 
+            id="title" 
+            name="title" 
+            placeholder="e.g. Water Maintenance Notice" 
+            required 
+            class="form-input w-full rounded-xl px-4 py-3 text-xs placeholder:text-slate-500 font-normal"
+          />
+        </div>
+        
+        <div class="space-y-1.5">
+          <label for="content" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Announcement Content</label>
+          <textarea 
+            id="content" 
+            name="content" 
+            rows="3" 
+            placeholder="Write notice details..." 
+            required 
+            class="form-input w-full rounded-xl p-3.5 text-xs placeholder:text-slate-500 resize-none font-normal"
+          ></textarea>
+        </div>
+        
+        <button type="submit" class="primary-btn px-6 py-3 rounded-xl text-white font-medium text-xs flex items-center justify-center gap-2 shadow-md">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span>Publish Announcement</span>
+        </button>
+      </form>
+    </section>
 
-  <!-- Active Announcements List -->
-  <div class="card">
-    <h3>📋 Active Hostel Announcements</h3>
-    <% if (typeof announcements !== 'undefined' && announcements.length > 0) { %>
-      <ul>
-        <% announcements.forEach(item => { %>
-          <li style="margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 10px;">
-            <strong><%= item.title %></strong> 
-            <small style="color: #666;">(Posted by: <%= item.postedBy %> on <%= new Date(item.createdAt).toLocaleDateString() %>)</small>
-            <p style="margin: 5px 0 0 0;"><%= item.content %></p>
-          </li>
-        <% }) %>
-      </ul>
-    <% } else { %>
-      <p>No active announcements posted yet.</p>
-    <% } %>
-  </div>
+    <!-- Active Announcements List -->
+    <section class="glass-card rounded-2xl p-6">
+      <div class="flex items-center gap-2.5 mb-5 border-b border-white/10 pb-3">
+        <i data-lucide="bell" class="w-4 h-4 text-blue-400"></i>
+        <h3 class="text-base font-bold text-white">Active Hostel Announcements</h3>
+      </div>
 
-  <!-- Pending Visitor Approval Table -->
-  <div class="card">
-    <h3>🎟️ Pending Visitor Pass Requests</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Room No</th>
-          <th>Student Name</th>
-          <th>Visitor Name</th>
-          <th>Visitor Phone</th>
-          <th>Passcode</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (typeof pendingVisitors !== 'undefined' && pendingVisitors.length > 0) { %>
-          <% pendingVisitors.forEach(visitor => { %>
-            <tr>
-              <td><strong><%= visitor.resident ? visitor.resident.roomNumber : 'N/A' %></strong></td>
-              <td><%= visitor.resident ? visitor.resident.name : 'N/A' %></td>
-              <td><%= visitor.visitorName %></td>
-              <td><%= visitor.visitorPhone %></td>
-              <td><code><%= visitor.passcode %></code></td>
-              <td><span class="badge pending"><%= visitor.status %></span></td>
-              <td>
-                <form action="/warden/visitors/approve/<%= visitor._id %>" method="POST" style="margin: 0;">
-                  <button type="submit" class="btn-approve">Approve Pass</button>
-                </form>
-              </td>
-            </tr>
+      <div class="space-y-3">
+        <% if (typeof announcements !== 'undefined' && announcements.length > 0) { %>
+          <% announcements.forEach(item => { %>
+            <div class="p-4 rounded-xl glass-row space-y-1.5">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h4 class="font-semibold text-white text-sm"><%= item.title %></h4>
+                <span class="text-[11px] font-medium text-slate-400">
+                  Posted by: <%= item.postedBy %> &bull; <%= new Date(item.createdAt).toLocaleDateString() %>
+                </span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed font-normal"><%= item.content %></p>
+            </div>
           <% }) %>
         <% } else { %>
-          <tr><td colspan="7">No pending visitor pass requests.</td></tr>
+          <div class="text-center py-6 text-xs text-slate-400 font-medium">No active announcements posted yet.</div>
         <% } %>
-      </tbody>
-    </table>
-  </div>
+      </div>
+    </section>
 
-  <!-- Student Maintenance Complaints Table -->
-  <div class="card">
-    <h3>🔧 Student Maintenance Issues</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Room No</th>
-          <th>Student Name</th>
-          <th>Category</th>
-          <th>Description</th>
-          <th>Status</th>
-          <th>Update Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (typeof issues !== 'undefined' && issues.length > 0) { %>
-          <% issues.forEach(issue => { %>
-            <tr>
-              <td><strong><%= issue.roomNumber %></strong></td>
-              <td><%= issue.resident ? issue.resident.name : 'N/A' %></td>
-              <td><%= issue.category %></td>
-              <td><%= issue.description %></td>
-              <td><%= issue.status %></td>
-              <td>
-                <form action="/warden/issues/update/<%= issue._id %>" method="POST" style="display:flex; gap: 5px;">
-                  <select name="status">
-                    <option value="Pending" <%= issue.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                    <option value="In Progress" <%= issue.status === 'In Progress' ? 'selected' : '' %>>In Progress</option>
-                    <option value="Resolved" <%= issue.status === 'Resolved' ? 'selected' : '' %>>Resolved</option>
-                  </select>
-                  <button type="submit">Update</button>
-                </form>
-              </td>
+    <!-- Pending Visitor Approval Table -->
+    <section class="glass-card rounded-2xl p-6">
+      <div class="flex items-center gap-2.5 mb-5 border-b border-white/10 pb-3">
+        <i data-lucide="ticket" class="w-4 h-4 text-blue-400"></i>
+        <h3 class="text-base font-bold text-white">Pending Visitor Pass Requests</h3>
+      </div>
+
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left text-xs border-separate border-spacing-y-2">
+          <thead>
+            <tr class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+              <th class="pb-2 px-3">Room</th>
+              <th class="pb-2 px-3">Student Name</th>
+              <th class="pb-2 px-3">Visitor Name</th>
+              <th class="pb-2 px-3">Visitor Phone</th>
+              <th class="pb-2 px-3">Visit Date</th>
+              <th class="pb-2 px-3">Passcode</th>
+              <th class="pb-2 px-3">Status</th>
+              <th class="pb-2 px-3 text-right">Action</th>
             </tr>
-          <% }) %>
-        <% } else { %>
-          <tr><td colspan="6">No maintenance issues reported.</td></tr>
-        <% } %>
-      </tbody>
-    </table>
-  </div>
+          </thead>
+          <tbody>
+            <% if (typeof pendingVisitors !== 'undefined' && pendingVisitors.length > 0) { %>
+              <% pendingVisitors.forEach(visitor => { %>
+                <tr class="glass-row rounded-xl">
+                  <td class="py-3 px-3 rounded-l-xl font-bold text-white">
+                    <%= visitor.resident ? visitor.resident.roomNumber : 'N/A' %>
+                  </td>
+                  <td class="py-3 px-3 text-slate-200">
+                    <%= visitor.resident ? visitor.resident.name : 'N/A' %>
+                  </td>
+                  <td class="py-3 px-3 text-slate-200 font-medium">
+                    <%= visitor.visitorName %>
+                  </td>
+                  <td class="py-3 px-3 text-slate-400">
+                    <%= visitor.visitorPhone %>
+                  </td>
+                  <td class="py-3 px-3 text-slate-300">
+                    <%= visitor.visitDate ? new Date(visitor.visitDate).toLocaleDateString() : 'N/A' %>
+                  </td>
+                  <td class="py-3 px-3">
+                    <code class="text-[10px] font-mono tracking-wider bg-black/40 px-2 py-0.5 rounded text-blue-300 border border-white/5">
+                      <%= visitor.passcode %>
+                    </code>
+                  </td>
+                  <td class="py-3 px-3">
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border border-amber-500/30 bg-amber-500/10 text-amber-400 uppercase tracking-wider">
+                      <%= visitor.status %>
+                    </span>
+                  </td>
+                  <td class="py-3 px-3 text-right rounded-r-xl">
+                    <form action="/warden/visitors/approve/<%= visitor._id %>" method="POST" class="inline-block">
+                      <button type="submit" class="approve-btn px-3 py-1.5 rounded-lg text-white font-medium text-[11px] flex items-center gap-1">
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                        <span>Approve</span>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="8" class="text-center py-6 text-xs text-slate-400 font-medium">
+                  No pending visitor pass requests.
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
+    <!-- Student Maintenance Complaints Table -->
+    <section class="glass-card rounded-2xl p-6">
+      <div class="flex items-center gap-2.5 mb-5 border-b border-white/10 pb-3">
+        <i data-lucide="wrench" class="w-4 h-4 text-blue-400"></i>
+        <h3 class="text-base font-bold text-white">Student Maintenance Issues</h3>
+      </div>
+
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left text-xs border-separate border-spacing-y-2">
+          <thead>
+            <tr class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+              <th class="pb-2 px-3">Room</th>
+              <th class="pb-2 px-3">Student Name</th>
+              <th class="pb-2 px-3">Category</th>
+              <th class="pb-2 px-3">Description</th>
+              <th class="pb-2 px-3">Status</th>
+              <th class="pb-2 px-3">Urgency</th>
+              <th class="pb-2 px-3">Time</th>
+              <th class="pb-2 px-3 text-right">Update Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (typeof issues !== 'undefined' && issues.length > 0) { %>
+              <% issues.forEach(issue => { %>
+                <%
+                  const createdTime = new Date(issue.createdAt);
+                  const endTime = issue.status === 'Resolved'
+                    ? new Date(issue.updatedAt)
+                    : new Date();
+
+                  const diffMins = Math.floor((endTime - createdTime) / (1000 * 60));
+                  const hrs = Math.floor(diffMins / 60);
+                  const mins = diffMins % 60;
+
+                  let timeText;
+                  if (hrs >= 24) {
+                    const days = Math.floor(hrs / 24);
+                    const remainingHrs = hrs % 24;
+                    timeText = remainingHrs > 0 ? `${days}d ${remainingHrs}h` : `${days}d`;
+                  } else if (hrs > 0) {
+                    timeText = `${hrs}h ${mins}m`;
+                  } else {
+                    timeText = `${mins}m`;
+                  }
+                %>
+
+                <tr class="glass-row rounded-xl">
+                  <td class="py-3 px-3 rounded-l-xl font-bold text-white">
+                    <%= issue.roomNumber %>
+                  </td>
+                  <td class="py-3 px-3 text-slate-200">
+                    <%= issue.resident ? issue.resident.name : 'N/A' %>
+                  </td>
+                  <td class="py-3 px-3 font-medium text-slate-300">
+                    <%= issue.category %>
+                  </td>
+                  <td class="py-3 px-3 text-slate-300 max-w-xs truncate" title="<%= issue.description %>">
+                    <%= issue.description %>
+                  </td>
+                  <td class="py-3 px-3">
+                    <% if (issue.status === 'Resolved') { %>
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">Resolved</span>
+                    <% } else if (issue.status === 'In Progress') { %>
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border border-blue-500/30 bg-blue-500/10 text-blue-400">In Progress</span>
+                    <% } else { %>
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border border-amber-500/30 bg-amber-500/10 text-amber-400">Pending</span>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-3 text-slate-300 font-medium">
+                    <% if (issue.urgency === 'High') { %>
+                      <span class="text-red-400">🚨 High</span>
+                    <% } else if (issue.urgency === 'Medium') { %>
+                      <span class="text-amber-400">⚠️ Medium</span>
+                    <% } else { %>
+                      <span class="text-slate-400">Low</span>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-3 text-slate-400 font-medium whitespace-nowrap">
+                    <% if (issue.status === 'Resolved') { %>
+                      ⚡ <%= timeText %>
+                    <% } else { %>
+                      ⏳ <%= timeText %> elapsed
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-3 text-right rounded-r-xl">
+                    <% if (issue.status !== 'Resolved') { %>
+                      <form action="/warden/issues/update/<%= issue._id %>" method="POST" class="inline-flex items-center gap-1.5 justify-end">
+                        <select name="status" class="form-input rounded-lg px-2 py-1 text-xs font-medium cursor-pointer bg-slate-900 border-white/10">
+                          <option value="Pending" <%= issue.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                          <option value="In Progress" <%= issue.status === 'In Progress' ? 'selected' : '' %>>In Progress</option>
+                          <option value="Resolved">Resolved</option>
+                        </select>
+                        <button type="submit" class="secondary-btn px-3 py-1 rounded-lg text-xs font-medium text-white hover:bg-white/10">
+                          Update
+                        </button>
+                      </form>
+                    <% } else { %>
+                      <span class="text-emerald-400 text-xs font-semibold flex items-center justify-end gap-1">
+                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                        Resolved
+                      </span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="8" class="text-center py-6 text-xs text-slate-400 font-medium">
+                  No maintenance issues reported.
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    lucide.createIcons();
+  </script>
 </body>
 </html>
