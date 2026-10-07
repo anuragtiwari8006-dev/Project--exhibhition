@@ -504,17 +504,17 @@ node seed.js
 - [ ] File / image upload for maintenance tickets
 - [ ] Unit and integration tests (Jest + Supertest)
 - [ ] Docker & CI/CD pipeline
-- [ ] REST API documentation with Swagger
+- [ ] REST API documentation with the Swagger
 
 ---
 
 ## 🤝 Contributing
 
-1. Fork the repository
+1. Fork the repository.
 2. Create a feature branch: `git checkout -b feature/your-feature`
 3. Commit your changes: `git commit -m "Add your feature"`
 4. Push the branch: `git push origin feature/your-feature`
-5. Open a Pull Request
+5. Open a Pull Request,
 
 ---
 
