@@ -22,9 +22,14 @@
 
   <style>
     body {
+<<<<<<< HEAD
       background-color: #030712;
       color: #f9fafb;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+=======
+      color: #ffffff;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+>>>>>>> 3781d5d747e897a305402eb292fc97b4356b77e0
       -webkit-font-smoothing: antialiased;
     }
 
@@ -58,6 +63,7 @@
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.1);
       color: #ffffff;
+<<<<<<< HEAD
       transition: all 0.2s ease;
     }
     
@@ -87,6 +93,53 @@
     .secondary-btn:hover {
       background: rgba(255, 255, 255, 0.1);
       border-color: rgba(255, 255, 255, 0.25);
+=======
+    }
+    
+    .nature-input:focus {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.4);
+      outline: none;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+
+    .nature-table-row {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+    }
+
+    .nature-table-row:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .liquid-glass {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: none;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .liquid-glass::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.4px;
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%,
+        rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
+        rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+-webkit-mask-composite: xor;
+mask-composite: exclude;
+      pointer-events: none;
+>>>>>>> 3781d5d747e897a305402eb292fc97b4356b77e0
     }
   </style>
 </head>
@@ -97,6 +150,7 @@
     window.currentUserId = "<%= (typeof user !== 'undefined' && user._id) ? user._id : '' %>";
   </script>
 
+<<<<<<< HEAD
   <!-- Background Video -->
   <video autoPlay muted loop playsInline class="fixed inset-0 w-full h-full object-cover object-center -z-20 pointer-events-none">
     <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260619_191346_9d19d66e-86a4-47f7-8dc6-712c1788c3b2.mp4" type="video/mp4">
@@ -104,6 +158,8 @@
 
   <div class="fixed inset-0 bg-slate-950/75 backdrop-brightness-90 pointer-events-none -z-10"></div>
 
+=======
+>>>>>>> 3781d5d747e897a305402eb292fc97b4356b77e0
   <!-- Header Navigation -->
   <header class="sticky top-0 z-50 glass-nav px-6 py-4">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
