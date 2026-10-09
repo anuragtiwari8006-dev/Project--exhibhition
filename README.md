@@ -426,26 +426,34 @@ flowchart LR
 
 ### Steps
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
+#1. Clone the repository and open its folder.
 
-# 2. Install dependencies
-npm install
+#2. Install dependencies:
 
-# 3. Create the environment file
-cp .env.example .env     # then edit values (see below)
+   ```bash
+   npm install
+   ```
 
-# 4. (Optional) Seed sample data
-node seed.js
+#3. Create a `.env` file in the project root and configure your environment variables:
 
-# 5. Start the server
-npm start                # production
-npm run dev              # development (nodemon)
-```
+   ```env
+   PORT=3000
+   MONGO_URI=mongodb://127.0.0.1:27017/hostelDB
+   SESSION_SECRET=replace_with_a_secure_random_secret
+   JWT_SECRET=replace_with_a_secure_random_secret
+   ```
 
-Open **http://localhost:5000** in your browser.
+#4. Ensure MongoDB is running and the database connection settings are correct.
+
+#5. Start the application:
+
+   ```bash
+   npm start
+   ```
+
+#6. Open `http://localhost:3000` in your browser.
+
+#**Note:** The default port is 3000. If a different `PORT` is configured, use that port instead. Keep `.env` private and never commit real secrets to GitHub.
 
 ---
 
